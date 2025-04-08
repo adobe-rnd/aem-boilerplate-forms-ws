@@ -12,7 +12,7 @@ import componentDecorator from './mappings.js';
 import DocBasedFormToAF from './transform.js';
 import transferRepeatableDOM, { insertAddButton, insertRemoveButton } from './components/repeat/repeat.js';
 import { handleSubmit } from './submit.js';
-import { getSubmitBaseUrl, emailPattern } from './constant.js';
+import { getSubmitBaseUrl, emailPattern, SUBMISSION_SERVICE } from './constant.js';
 import { createOptimizedPicture } from '../../scripts/aem.js';
 
 export const DELAY_MS = 0;
@@ -478,7 +478,7 @@ export async function createForm(formDef, data) {
 
   form.addEventListener('reset', async () => {
     const newForm = await createForm(formDef);
-    document.querySelector(`[data-action="${formDef.action}"]`).replaceWith(newForm);
+    document.querySelector(`[data-action="${form?.dataset?.action}"]`)?.replaceWith(newForm);
   });
 
   form.addEventListener('submit', (e) => {
@@ -578,7 +578,15 @@ export default async function decorate(block) {
   let rules = true;
   let form;
   if (formDef) {
-    formDef.action = getSubmitBaseUrl() + (formDef.action || '');
+    const { actionType, spreadsheetUrl } = formDef?.properties || {};
+    if (!formDef?.properties?.['fd:submit'] && actionType === 'spreadsheet' && spreadsheetUrl) {
+      // Check if we're in an iframe and use parent window's path if available
+      const iframePath = window.frameElement ? window.parent.location.pathname
+        : window.location.pathname;
+      formDef.action = SUBMISSION_SERVICE + btoa(pathname || iframePath);
+    } else {
+      formDef.action = getSubmitBaseUrl() + (formDef.action || '');
+    }
     if (isDocumentBasedForm(formDef)) {
       const transform = new DocBasedFormToAF();
       formDef = transform.transform(formDef);
