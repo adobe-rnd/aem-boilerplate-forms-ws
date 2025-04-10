@@ -151,7 +151,8 @@ function annotateItems(items, formDefinition, formFieldMap) {
               if (activeWizardStep === fieldWrapper.dataset.id) {
                 handleWizardNavigation(fieldWrapper.parentElement, fieldWrapper);
               }
-              // Check if this panel is in an accordion and should be expanded in authoring after a change
+              /* Check if this panel is in an accordion
+                and should be expanded in authoring after a change */
               if (activeAccordionPanel === fieldWrapper.dataset.id && fieldWrapper.parentElement.classList.contains('accordion')) {
                 handleAccordionNavigationInEditor(fieldWrapper.parentElement, fieldWrapper);
               }

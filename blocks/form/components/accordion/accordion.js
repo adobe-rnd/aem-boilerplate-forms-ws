@@ -5,7 +5,11 @@ export function handleAccordionNavigation(panel, tab, forceOpen = false) {
       otherTab.classList.add('accordion-collapse');
     }
   });
-  forceOpen ? tab.classList.remove('accordion-collapse') : tab.classList.toggle('accordion-collapse');
+  if (forceOpen) {
+    tab.classList.remove('accordion-collapse');
+  } else {
+    tab.classList.toggle('accordion-collapse');
+  }
 }
 
 export default function decorate(panel) {
