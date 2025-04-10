@@ -65,8 +65,7 @@ export function handleWizardNavigation(wizardEl, navigateTo) {
   navigateToMenuItem.classList.add('wizard-menu-active-item');
 }
 
-export function handleAccordionNavigationInEditor(accordionEl, navigateTo) {
-  // Use the shared function with forceOpen=true
+function handleAccordionNavigationInEditor(accordionEl, navigateTo) {
   handleAccordionNavigation(accordionEl, navigateTo, true);
   activeAccordionPanel = navigateTo.dataset.id;
 }
@@ -152,7 +151,7 @@ function annotateItems(items, formDefinition, formFieldMap) {
               if (activeWizardStep === fieldWrapper.dataset.id) {
                 handleWizardNavigation(fieldWrapper.parentElement, fieldWrapper);
               }
-              // Check if this panel is in an accordion and should be expanded
+              // Check if this panel is in an accordion and should be expanded in authoring after a change
               if (activeAccordionPanel === fieldWrapper.dataset.id && fieldWrapper.parentElement.classList.contains('accordion')) {
                 handleAccordionNavigationInEditor(fieldWrapper.parentElement, fieldWrapper);
               }
