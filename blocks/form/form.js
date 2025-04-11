@@ -348,22 +348,33 @@ function inputDecorator(field, element) {
   }
 }
 
-function decoratePanelContainer(container, panel) {
-  if (!container || !panel) return;
-  if (container.classList?.contains('panel-wrapper')) {
-    if (panel.label && !container.querySelector(`legend[for=${container.dataset.id}]`)) {
-      const legend = createLegend(panel);
+function decoratePanelContainer(panelDefinition, panelContainer) {
+  if (!panelContainer) return;
+
+  const isPanelWrapper = (container) => container.classList?.contains('panel-wrapper');
+
+  const shouldAddLabel = (container, panel) => panel.label && !container.querySelector(`legend[for=${container.dataset.id}]`);
+
+  const isContainerRepeatable = (container) => container.dataset?.repeatable === 'true' && container.dataset?.variant !== 'noButtons';
+
+  const needsAddButton = (container) => !container.querySelector(':scope > .repeat-actions');
+
+  const needsRemoveButton = (container) => !container.querySelector(':scope > .item-remove');
+
+  if (isPanelWrapper(panelContainer)) {
+    if (shouldAddLabel(panelContainer, panelDefinition)) {
+      const legend = createLegend(panelDefinition);
       if (legend) {
-        container.insertAdjacentElement('afterbegin', legend);
+        panelContainer.insertAdjacentElement('afterbegin', legend);
       }
     }
 
-    if (container.dataset?.repeatable === 'true' && container.dataset?.variant !== 'noButtons') {
-      if (!container.querySelector(':scope > .repeat-actions')) {
-        insertAddButton(container, container);
+    if (isContainerRepeatable(panelContainer)) {
+      if (needsAddButton(panelContainer)) {
+        insertAddButton(panelContainer, panelContainer);
       }
-      if (!container.querySelector(':scope > .item-remove')) {
-        insertRemoveButton(container, container);
+      if (needsRemoveButton(panelContainer)) {
+        insertRemoveButton(panelContainer, panelContainer);
       }
     }
   }
@@ -415,7 +426,7 @@ export async function generateFormRendition(panel, container, getItems = (p) => 
 
   const children = await Promise.all(promises);
   container.append(...children.filter((_) => _ != null));
-  decoratePanelContainer(container, panel);
+  decoratePanelContainer(panel, container);
   await componentDecorator(container, panel);
 }
 
