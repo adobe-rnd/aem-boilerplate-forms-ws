@@ -178,13 +178,11 @@ export function annotateFormForEditing(formEl, formDefinition) {
 function handleNavigation(container, resource, navigationHandler) {
   const el = container.querySelector(`[data-aue-resource='${resource}']`);
   if (!el) return;
-
   if (el.parentElement === container) {
     navigationHandler(container, el);
   } else {
-    const directChild = Array.from(container.children).find(child => 
-      child.contains(el) || child === el
-    );
+    const directChild = Array.from(container.children)
+      .find((child) => child.contains(el) || child === el);
     if (directChild) {
       navigationHandler(container, directChild);
     }
