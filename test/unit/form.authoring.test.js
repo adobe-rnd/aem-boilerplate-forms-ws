@@ -22,7 +22,6 @@ import { renderForm } from './testUtils.js';
 import { ueFormDefForAccordionNavigationTest } from './fixtures/ue/events/formdefinition-accordion-navigation.js';
 import { handleAccordionNavigation } from '../../blocks/form/components/accordion/accordion.js';
 import { handleEditorSelect } from '../../scripts/form-editor-support.js';
-import { ueSelectNestedPanelEvent } from './fixtures/ue/events/event-select-nested-panel.js';
 
 describe('Universal Editor Authoring Test Cases', () => {
   
@@ -239,6 +238,19 @@ describe('Universal Editor Authoring Test Cases', () => {
     await renderForm(ueFormDefForWizardNavigationTest);
     const formEl = document.querySelector('form');
     const wizardEl = formEl.querySelector('.wizard');
+    
+    // Find the nested panel element in the rendered HTML
+    const nestedPanel = formEl.querySelector('[data-id="panelcontainer-nested"]');
+    assert.ok(nestedPanel, 'Nested panel should exist');
+    
+    // Set up the event with the actual nested panel element
+    const ueSelectNestedPanelEvent = {
+      target: nestedPanel,
+      detail: {
+        selected: true,
+        resource: 'urn:aemconnection:/content/ng-test1/index/jcr:content/root/section_0/form/panelcontainer_1310348320/panelcontainer/nested_panel',
+      },
+    };
     
     // Test that selecting the nested panel navigates to its parent panel
     handleEditorSelect(ueSelectNestedPanelEvent);
