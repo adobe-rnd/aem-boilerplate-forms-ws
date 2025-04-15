@@ -23,6 +23,8 @@ import { ueFormDefForAccordionNavigationTest } from './fixtures/ue/events/formde
 import { handleAccordionNavigation } from '../../blocks/form/components/accordion/accordion.js';
 import { ueFormDefForRepeatablePanelTest } from './fixtures/ue/events/formdefinition-repeatable-panel.js';
 import { uePatchEventForRepeatablePanel } from './fixtures/ue/events/event-patch-repeatable-panel.js';
+import { handleEditorSelect } from '../../scripts/form-editor-support.js';
+
 describe('Universal Editor Authoring Test Cases', () => {
 
   beforeEach(async () => {
