@@ -892,21 +892,6 @@
             }
           },
           {
-            "component": "text",
-            "name": "otherPlaceholder",
-            "label": "Other Text Field Placeholder",
-            "valueType": "string",
-            "value": "Please specify",
-            "condition": {
-              "==": [
-                {
-                  "var": "showOtherOption"
-                },
-                true
-              ]
-            }
-          },
-          {
             "component": "radio-group",
             "label": "Display Options",
             "name": "orientation",
