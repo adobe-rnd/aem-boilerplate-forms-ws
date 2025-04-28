@@ -21,94 +21,37 @@ export default async function decorate(fieldDiv, fieldJson, container, formId) {
     const orientation = fieldProperties.orientation || 'vertical';
     const showOtherOption = fieldProperties.showOtherOption || false;
     const otherOptionLabel = fieldProperties.otherOptionLabel || 'Other';
-    const otherPlaceholder = fieldProperties.otherPlaceholder || 'Please specify';
+    
+    // Store the current other value
+    let currentOtherValue = 'Please specify';
     
     wrapper.classList.add(`cmp-checkbox-with-others--${orientation}`);
     
-    // Create checkboxes for regular options
-    options.forEach((option, index) => {
-        const checkboxWrapper = document.createElement('div');
-        checkboxWrapper.className = 'cmp-checkbox-with-others__option';
-        
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = `${fieldDiv.id}-${index}`;
-        checkbox.name = fieldJson.name;
-        checkbox.value = option.value;
-        checkbox.className = 'cmp-checkbox-with-others__input';
-        
-        const label = document.createElement('label');
-        label.htmlFor = checkbox.id;
-        label.textContent = option.text;
-        label.className = 'cmp-checkbox-with-others__label';
-        
-        checkboxWrapper.appendChild(checkbox);
-        checkboxWrapper.appendChild(label);
-        wrapper.appendChild(checkboxWrapper);
-    });
-    
+    // Create text input for "Other" option
     let otherInput;
-    // Create "Other" option only if showOtherOption is true
     if (showOtherOption) {
-        const otherWrapper = document.createElement('div');
-        otherWrapper.className = 'cmp-checkbox-with-others__other-option';
-        
-        const otherCheckbox = document.createElement('input');
-        otherCheckbox.type = 'checkbox';
-        otherCheckbox.id = `${fieldDiv.id}-other`;
-        otherCheckbox.name = fieldJson.name;
-        otherCheckbox.value = 'other';
-        otherCheckbox.className = 'cmp-checkbox-with-others__input';
-        
-        const otherLabel = document.createElement('label');
-        otherLabel.htmlFor = otherCheckbox.id;
-        otherLabel.textContent = otherOptionLabel;
-        otherLabel.className = 'cmp-checkbox-with-others__label';
-        
         otherInput = document.createElement('input');
         otherInput.type = 'text';
         otherInput.className = 'cmp-checkbox-with-others__other-input';
-        otherInput.placeholder = otherPlaceholder;
+        otherInput.value = currentOtherValue;
         otherInput.style.display = 'none';
-        
-        otherWrapper.appendChild(otherCheckbox);
-        otherWrapper.appendChild(otherLabel);
-        otherWrapper.appendChild(otherInput);
-        wrapper.appendChild(otherWrapper);
+        wrapper.appendChild(otherInput);
     }
     
-    // Replace the original element with our custom implementation
-    fieldDiv.innerHTML = '';
+    // Append our custom wrapper to the original element
     fieldDiv.appendChild(wrapper);
     
-    // Add help text if it exists
-    const helpText = fieldDiv.querySelector('.field-description');
-    if (helpText) {
-        fieldDiv.appendChild(helpText);
-    }
-
     // Subscribe to field model changes
     subscribe(fieldDiv, formId, async (element, fieldModel) => {
         // Store the field model globally
         model = fieldModel;
 
-        // Handle initial value
-        if (fieldModel.value) {
-            const values = Array.isArray(fieldModel.value) ? fieldModel.value : [fieldModel.value];
-            wrapper.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                if (checkbox.value === 'other') {
-                    const otherValue = values.find(v => !options.some(opt => opt.value === v));
-                    if (otherValue) {
-                        checkbox.checked = true;
-                        if (otherInput) {
-                            otherInput.style.display = 'block';
-                            otherInput.value = otherValue;
-                        }
-                    }
-                } else {
-                    checkbox.checked = values.includes(checkbox.value);
-                }
-            });
+        // Update form model to include "Other" option if showOtherOption is true
+        if (showOtherOption) {
+            fieldModel.enum = [...(fieldModel.enum || []), currentOtherValue];
+            fieldModel.enumNames = [...(fieldModel.enumNames || []), otherOptionLabel];
+            // Re-decorate to let form.js create the checkbox
+            decorate(fieldDiv, fieldJson, container, formId);
         }
 
         // Subscribe to showOtherOption changes
@@ -117,13 +60,13 @@ export default async function decorate(fieldDiv, fieldJson, container, formId) {
             payload?.changes?.forEach((change) => {
                 if (change?.propertyName === 'showOtherOption') {
                     if (change.currentValue) {
-                        // Add "Other" to enum and enumNames
-                        fieldModel.enum = [...(fieldModel.enum || []), 'other'];
-                        fieldModel.enumNames = [...(fieldModel.enumNames || []), 'Others'];
+                        // Add currentOtherValue to enum and enumNames
+                        fieldModel.enum = [...(fieldModel.enum || []), currentOtherValue];
+                        fieldModel.enumNames = [...(fieldModel.enumNames || []), otherOptionLabel];
                     } else {
-                        // Remove "Other" from enum and enumNames
-                        fieldModel.enum = fieldModel.enum.filter(v => v !== 'other');
-                        fieldModel.enumNames = fieldModel.enumNames.filter(n => n !== 'Others');
+                        // Remove currentOtherValue from enum and enumNames
+                        fieldModel.enum = fieldModel.enum.filter(v => v !== currentOtherValue);
+                        fieldModel.enumNames = fieldModel.enumNames.filter(n => n !== otherOptionLabel);
                     }
                     // Re-render the component
                     decorate(fieldDiv, fieldJson, container, formId);
@@ -137,54 +80,34 @@ export default async function decorate(fieldDiv, fieldJson, container, formId) {
             otherCheckbox.addEventListener('change', (e) => {
                 otherInput.style.display = e.target.checked ? 'block' : 'none';
                 if (!e.target.checked) {
-                    otherInput.value = '';
-                    // Remove "Other" from enum and enumNames
-                    fieldModel.enum = fieldModel.enum.filter(v => v !== 'other');
-                    fieldModel.enumNames = fieldModel.enumNames.filter(n => n !== 'Others');
+                    otherInput.value = currentOtherValue;
+                    // Remove the current other value from enum
+                    if (currentOtherValue) {
+                        fieldModel.enum = fieldModel.enum.filter(v => v !== currentOtherValue);
+                        currentOtherValue = 'Please specify';
+                        // Add back the default value
+                        fieldModel.enum = [...fieldModel.enum, currentOtherValue];
+                    }
                 }
             });
 
             otherInput.addEventListener('input', (e) => {
                 if (otherCheckbox.checked) {
-                    // Update enum and enumNames with the text input value
                     const value = e.target.value;
                     if (value) {
-                        fieldModel.enum = [...(fieldModel.enum || []).filter(v => v !== 'other'), value];
-                        fieldModel.enumNames = [...(fieldModel.enumNames || []).filter(n => n !== 'Others'), 'Others'];
+                        // Remove previous other value if exists
+                        if (currentOtherValue) {
+                            fieldModel.enum = fieldModel.enum.filter(v => v !== currentOtherValue);
+                        }
+                        // Add new value to enum
+                        currentOtherValue = value;
+                        fieldModel.enum = [...fieldModel.enum, value];
+                        // Keep "Others" in enumNames
+                        fieldModel.enumNames = [...fieldModel.enumNames.filter(n => n !== otherOptionLabel), otherOptionLabel];
                     }
                 }
             });
         }
-
-        // Subscribe to value changes
-        fieldModel.subscribe((e) => {
-            const { payload } = e;
-            payload?.changes?.forEach((change) => {
-                if (change?.propertyName === 'value') {
-                    const values = Array.isArray(change.currentValue) ? change.currentValue : [change.currentValue];
-                    wrapper.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                        if (checkbox.value === 'other') {
-                            const otherValue = values.find(v => !options.some(opt => opt.value === v));
-                            if (otherValue) {
-                                checkbox.checked = true;
-                                if (otherInput) {
-                                    otherInput.style.display = 'block';
-                                    otherInput.value = otherValue;
-                                }
-                            } else {
-                                checkbox.checked = false;
-                                if (otherInput) {
-                                    otherInput.style.display = 'none';
-                                    otherInput.value = '';
-                                }
-                            }
-                        } else {
-                            checkbox.checked = values.includes(checkbox.value);
-                        }
-                    });
-                }
-            });
-        }, 'change');
     });
     
     return fieldDiv;
