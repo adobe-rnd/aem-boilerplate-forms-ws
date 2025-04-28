@@ -74,39 +74,53 @@ export default function decorate(fieldDiv, fieldJson, container, formId) {
         }, 'change');
 
         // Add event handlers for "Other" option
-        if (otherInput) {
-            const otherCheckbox = wrapper.querySelector(`#${fieldDiv.id}-other`);
-            otherCheckbox.addEventListener('change', (e) => {
-                otherInput.style.display = e.target.checked ? 'block' : 'none';
-                if (!e.target.checked) {
-                    otherInput.value = currentOtherValue;
-                    // Remove the current other value from enum
-                    if (currentOtherValue) {
-                        fieldModel.enum = fieldModel.enum.filter(v => v !== currentOtherValue);
-                        currentOtherValue = 'Please specify';
-                        // Add back the default value
-                        fieldModel.enum = [...fieldModel.enum, currentOtherValue];
-                    }
-                }
-            });
-
-            otherInput.addEventListener('input', (e) => {
-                if (otherCheckbox.checked) {
-                    const value = e.target.value;
-                    if (value) {
-                        // Remove previous other value if exists
+        // Watch for checkbox creation using MutationObserver
+        const observer = new MutationObserver((mutations) => {
+            const otherCheckbox = wrapper.querySelector(`input[name="${fieldJson.name}"][value="${currentOtherValue}"]`);
+            if (otherCheckbox) {
+                observer.disconnect();
+                
+                otherCheckbox.addEventListener('change', (e) => {
+                    otherInput.style.display = e.target.checked ? 'block' : 'none';
+                    if (!e.target.checked) {
+                        otherInput.value = currentOtherValue;
+                        // Remove the current other value from enum
                         if (currentOtherValue) {
-                            fieldModel.enum = fieldModel.enum.filter(v => v !== currentOtherValue);
+                            if (model) {
+                                model.enum = model.enum.filter(v => v !== currentOtherValue);
+                                currentOtherValue = '';
+                                // Add back the default value
+                                model.enum = [...model.enum, currentOtherValue];
+                            }
                         }
-                        // Add new value to enum
-                        currentOtherValue = value;
-                        fieldModel.enum = [...fieldModel.enum, value];
-                        // Keep "Others" in enumNames
-                        fieldModel.enumNames = [...fieldModel.enumNames.filter(n => n !== otherOptionLabel), otherOptionLabel];
                     }
-                }
-            });
-        }
+                });
+
+                otherInput.addEventListener('input', (e) => {
+                    if (otherCheckbox.checked) {
+                        const value = e.target.value;
+                        if (value) {
+                            // Remove previous other value if exists
+                            if (currentOtherValue) {
+                                if (model) {
+                                    model.enum = model.enum.filter(v => v !== currentOtherValue);
+                                }
+                            }
+                            // Add new value to enum
+                            currentOtherValue = value;
+                            if (model) {
+                                model.enum = [...model.enum, value];
+                                // Keep "Others" in enumNames
+                                model.enumNames = [...model.enumNames.filter(n => n !== otherOptionLabel), otherOptionLabel];
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        // Start observing the wrapper for changes
+        observer.observe(wrapper, { childList: true, subtree: true });
     });
     
     return fieldDiv;
