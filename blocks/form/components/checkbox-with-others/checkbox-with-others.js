@@ -72,14 +72,6 @@ export default async function decorate(fieldDiv, fieldJson, container, formId) {
         otherWrapper.appendChild(otherLabel);
         otherWrapper.appendChild(otherInput);
         wrapper.appendChild(otherWrapper);
-        
-        // Event handlers
-        otherCheckbox.addEventListener('change', (e) => {
-            otherInput.style.display = e.target.checked ? 'block' : 'none';
-            if (!e.target.checked) {
-                otherInput.value = '';
-            }
-        });
     }
     
     // Replace the original element with our custom implementation
@@ -109,6 +101,42 @@ export default async function decorate(fieldDiv, fieldJson, container, formId) {
                     }
                 } else {
                     checkbox.checked = values.includes(checkbox.value);
+                }
+            });
+        }
+
+        // Subscribe to showOtherOption changes
+        fieldModel.subscribe((e) => {
+            const { payload } = e;
+            payload?.changes?.forEach((change) => {
+                if (change?.propertyName === 'showOtherOption') {
+                    // Re-render the component
+                    decorate(fieldDiv, fieldJson, container, formId);
+                }
+            });
+        }, 'change');
+
+        // Add event handlers for "Other" option
+        if (otherInput) {
+            const otherCheckbox = wrapper.querySelector(`#${fieldDiv.id}-other`);
+            otherCheckbox.addEventListener('change', (e) => {
+                otherInput.style.display = e.target.checked ? 'block' : 'none';
+                if (!e.target.checked) {
+                    otherInput.value = '';
+                    // Remove "Other" from enum and enumNames
+                    fieldModel.enum = fieldModel.enum.filter(v => v !== 'other');
+                    fieldModel.enumNames = fieldModel.enumNames.filter(n => n !== 'Others');
+                }
+            });
+
+            otherInput.addEventListener('input', (e) => {
+                if (otherCheckbox.checked) {
+                    // Update enum and enumNames with the text input value
+                    const value = e.target.value;
+                    if (value) {
+                        fieldModel.enum = [...(fieldModel.enum || []).filter(v => v !== 'other'), value];
+                        fieldModel.enumNames = [...(fieldModel.enumNames || []).filter(n => n !== 'Others'), 'Others'];
+                    }
                 }
             });
         }
