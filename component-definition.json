@@ -525,22 +525,6 @@
           }
         },
         {
-          "title": "Checkbox With Others",
-          "id": "checkbox-with-others",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/fd/components/form/checkboxgroup/v1/checkboxgroup",
-                "template": {
-                  "jcr:title": "Checkbox With Others",
-                  "fieldType": "checkbox-with-others",
-                  "fd:viewType": "checkbox-with-others"
-                }
-              }
-            }
-          }
-        },
-        {
           "title": "Modal",
           "id": "form-modal",
           "plugins": {
