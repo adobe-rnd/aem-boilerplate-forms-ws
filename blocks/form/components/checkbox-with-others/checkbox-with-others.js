@@ -27,9 +27,7 @@ export default function decorate(fieldDiv, fieldJson, container, formId) {
     wrapper.classList.add(`${wrapperClass}--${orientation}`);
     
     // Create text input for "Other" option
-    let otherInput;
-
-    otherInput = document.createElement('input');
+    const otherInput = document.createElement('input');
     otherInput.type = 'text';
     otherInput.className = `${wrapperClass}__other-input`;
     otherInput.value = currentOtherValue;
@@ -44,28 +42,28 @@ export default function decorate(fieldDiv, fieldJson, container, formId) {
         if (!e.target.checked) {
             otherInput.value = currentOtherValue;
             // Remove the current other value from enum
-            if (currentOtherValue) {
-                model?.enum = model?.enum.filter(v => v !== currentOtherValue);
+            if (currentOtherValue && model) {
+                model.enum = model.enum.filter(v => v !== currentOtherValue);
                 currentOtherValue = 'Please specify';
                 // Add back the default value
-                model?.enum = [...(model?.enum || []), currentOtherValue];
+                model.enum = [...model.enum, currentOtherValue];
             }
         }
     });
 
     otherInput.addEventListener('input', (e) => {
-        if (otherCheckbox?.checked) {
+        if (otherCheckbox?.checked && model) {
             const value = e.target.value;
             if (value) {
                 // Remove previous other value if exists
                 if (currentOtherValue) {
-                    model?.enum = model?.enum.filter(v => v !== currentOtherValue);
+                    model.enum = model.enum.filter(v => v !== currentOtherValue);
                 }
                 // Add new value to enum
                 currentOtherValue = value;
-                model?.enum = [...(model?.enum || []), value];
+                model.enum = [...model.enum, value];
                 // Keep "Others" in enumNames
-                model?.enumNames = [...(model?.enumNames || []).filter(n => n !== otherOptionLabel), otherOptionLabel];
+                model.enumNames = [...model.enumNames.filter(n => n !== otherOptionLabel), otherOptionLabel];
             }
         }
     });
