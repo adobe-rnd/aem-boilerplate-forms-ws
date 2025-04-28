@@ -17,35 +17,36 @@ const selectors = {
 
 async function globalSetup() {
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext();
+  const context = await browser.newContext({ recordVideo: { dir: './videos/' } });
   const page = await context.newPage();
-  await page.goto(baseUrl, { waitUntil: 'networkidle' });
-  const emailLocator = page.locator(selectors.emailInput);
-  const passwordLocator = page.locator(selectors.passwordInput);
-  await page.locator(selectors.signInWithAdobe).click();
-  await expect(page.locator(selectors.createAnAccount)).toBeVisible();
-  await page.getByRole('link', { name: 'View more' }).click();
-  await expect(page.getByRole('button', { name: 'Continue with Microsoft' })).toBeVisible();
-  await page.getByRole('button', { name: 'Continue with Microsoft' }).click();
-  await page.waitForLoadState('networkidle');
-  await expect(emailLocator).toBeVisible();
-  await emailLocator.fill(emailId);
-  await emailLocator.blur();
-  await page.getByRole('button', { name: 'Next' }).click();
-  expect(await page.locator(selectors.userDisplayName).innerText()).toBe(emailId);
-  await passwordLocator.fill(password);
-  await passwordLocator.blur();
-  await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.getByText('Stay signed in?')).toBeVisible();
-  await page.locator(selectors.firstExtButtonItem).first().click();
-  await page.waitForURL('https://author-p133911-e1313554.adobeaemcloud.com/ui#/aem/aem/start.html', { timeout: 30000 });
-  await page.waitForLoadState('load');
-  await page.waitForURL('https://author-p133911-e1313554.adobeaemcloud.com/ui#/aem/aem/start.html?appId=aemshell');
-  const frame = page.frameLocator(selectors.iFrame);
-  await expect(frame.getByLabel('Navigation')).toBeVisible();
-  await page.context().storageState({ path: filePath });
-  await context.close();
-  await browser.close();
+  try {
+    await page.goto(baseUrl, { waitUntil: 'networkidle' });
+    await page.locator(selectors.signInWithAdobe).click();
+    await expect(page.locator(selectors.createAnAccount)).toBeVisible();
+    await page.locator(selectors.googleSignIn).click();
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByText('Forgot email?')).toBeVisible({ timeout: 15000 });
+    await page.locator(selectors.emailInput).fill(emailId);
+    await page.locator(selectors.emailInput).blur();
+    await page.locator(selectors.nextButton).click();
+    await expect(page.locator(selectors.forgotPassword)).toBeVisible({ timeout: 20000 });
+    expect(await page.locator('div[data-email][data-profile-identifier]').innerText()).toBe(emailId);
+    await page.getByLabel('Enter your password').fill(password);
+    await page.getByLabel('Enter your password').blur();
+    await page.locator(selectors.nextButton).click();
+    await page.waitForURL('https://author-p133911-e1313554.adobeaemcloud.com/ui#/aem/aem/start.html', { timeout: 30000 });
+    await page.waitForLoadState('load');
+    await page.waitForURL('https://author-p133911-e1313554.adobeaemcloud.com/ui#/aem/aem/start.html?appId=aemshell');
+    const frame = page.frameLocator(selectors.iFrame);
+    await expect(frame.getByLabel('Navigation')).toBeVisible();
+    await page.context().storageState({ path: filePath });
+  } catch (error) {
+    await page.screenshot({ path: './error-screenshot.png' });
+    throw error;
+  } finally {
+    await context.close();
+    await browser.close();
+  }
 }
 
 export default globalSetup;
