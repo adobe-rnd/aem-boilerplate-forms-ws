@@ -13,7 +13,8 @@ let model = null;
  */
 export default function decorate(fieldDiv, fieldJson, container, formId) {
     const wrapper = document.createElement('div');
-    wrapper.className = 'cmp-checkbox-with-others';
+    const wrapperClass = 'checkbox-wrapper-others';
+    wrapper.className = wrapperClass;
     
     const fieldProperties = fieldJson?.properties || {};
     const orientation = fieldProperties.orientation || 'vertical';
@@ -23,18 +24,51 @@ export default function decorate(fieldDiv, fieldJson, container, formId) {
     // Store the current other value
     let currentOtherValue = '';
     
-    wrapper.classList.add(`cmp-checkbox-with-others--${orientation}`);
+    wrapper.classList.add(`${wrapperClass}--${orientation}`);
     
     // Create text input for "Other" option
     let otherInput;
 
     otherInput = document.createElement('input');
     otherInput.type = 'text';
-    otherInput.className = 'cmp-checkbox-with-others__other-input';
+    otherInput.className = `${wrapperClass}__other-input`;
     otherInput.value = currentOtherValue;
     otherInput.style.display = 'none';
     wrapper.appendChild(otherInput);
 
+    // Add event handlers for "Other" option
+    const otherCheckbox = wrapper.querySelector(`#${fieldDiv.id}-other`);
+    
+    otherCheckbox.addEventListener('change', (e) => {
+        otherInput.style.display = e.target.checked ? 'block' : 'none';
+        if (!e.target.checked) {
+            otherInput.value = currentOtherValue;
+            // Remove the current other value from enum
+            if (currentOtherValue) {
+                model?.enum = model?.enum.filter(v => v !== currentOtherValue);
+                currentOtherValue = 'Please specify';
+                // Add back the default value
+                model?.enum = [...(model?.enum || []), currentOtherValue];
+            }
+        }
+    });
+
+    otherInput.addEventListener('input', (e) => {
+        if (otherCheckbox?.checked) {
+            const value = e.target.value;
+            if (value) {
+                // Remove previous other value if exists
+                if (currentOtherValue) {
+                    model?.enum = model?.enum.filter(v => v !== currentOtherValue);
+                }
+                // Add new value to enum
+                currentOtherValue = value;
+                model?.enum = [...(model?.enum || []), value];
+                // Keep "Others" in enumNames
+                model?.enumNames = [...(model?.enumNames || []).filter(n => n !== otherOptionLabel), otherOptionLabel];
+            }
+        }
+    });
     
     // Append our custom wrapper to the original element
     fieldDiv.appendChild(wrapper);
@@ -71,39 +105,6 @@ export default function decorate(fieldDiv, fieldJson, container, formId) {
                 }
             });
         }, 'change');
-
-        // Add event handlers for "Other" option
-        const otherCheckbox = wrapper.querySelector(`#${fieldDiv.id}-other`);
-        otherCheckbox.addEventListener('change', (e) => {
-            otherInput.style.display = e.target.checked ? 'block' : 'none';
-            if (!e.target.checked) {
-                otherInput.value = currentOtherValue;
-                // Remove the current other value from enum
-                if (currentOtherValue) {
-                    fieldModel.enum = fieldModel.enum.filter(v => v !== currentOtherValue);
-                    currentOtherValue = 'Please specify';
-                    // Add back the default value
-                    fieldModel.enum = [...fieldModel.enum, currentOtherValue];
-                }
-            }
-        });
-
-        otherInput.addEventListener('input', (e) => {
-            if (otherCheckbox.checked) {
-                const value = e.target.value;
-                if (value) {
-                    // Remove previous other value if exists
-                    if (currentOtherValue) {
-                        fieldModel.enum = fieldModel.enum.filter(v => v !== currentOtherValue);
-                    }
-                    // Add new value to enum
-                    currentOtherValue = value;
-                    fieldModel.enum = [...fieldModel.enum, value];
-                    // Keep "Others" in enumNames
-                    fieldModel.enumNames = [...fieldModel.enumNames.filter(n => n !== otherOptionLabel), otherOptionLabel];
-                }
-            }
-        });
     });
     
     return fieldDiv;
