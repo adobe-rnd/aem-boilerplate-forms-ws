@@ -1,6 +1,9 @@
 import { Constants } from '../../../libs/constants.js';
 import { subscribe } from '../../rules/index.js';
 
+// Global variable to store the field model
+let model = null;
+
 /**
  * Creates a checkbox group with an "Other" option that reveals a text input when selected.
  * @param {HTMLElement} fieldDiv - The div element that contains the fields to be decorated
@@ -86,6 +89,9 @@ export default async function decorate(fieldDiv, fieldJson, container, formId) {
 
     // Subscribe to field model changes
     subscribe(fieldDiv, formId, async (element, fieldModel) => {
+        // Store the field model globally
+        model = fieldModel;
+
         // Handle initial value
         if (fieldModel.value) {
             const values = Array.isArray(fieldModel.value) ? fieldModel.value : [fieldModel.value];
