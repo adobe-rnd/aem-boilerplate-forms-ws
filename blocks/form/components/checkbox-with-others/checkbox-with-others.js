@@ -1,4 +1,3 @@
-import { Constants } from '../../../libs/constants.js';
 import { subscribe } from '../../rules/index.js';
 
 // Global variable to store the field model
@@ -12,7 +11,7 @@ let model = null;
  * @param {string} formId - The form ID
  * @returns {HTMLElement} - The decorated fieldDiv
  */
-export default async function decorate(fieldDiv, fieldJson, container, formId) {
+export default function decorate(fieldDiv, fieldJson, container, formId) {
     const wrapper = document.createElement('div');
     wrapper.className = 'cmp-checkbox-with-others';
     
