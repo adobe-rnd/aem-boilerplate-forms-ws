@@ -1,0 +1,109 @@
+{
+    "definitions": [
+        {
+            "title": "Checkbox With Others",
+            "id": "checkbox-with-others",
+            "plugins": {
+                "xwalk": {
+                    "page": {
+                        "resourceType": "core/fd/components/form/checkboxgroup/v1/checkboxgroup",
+                        "template": {
+                            "jcr:title": "Checkbox With Others",
+                            "fieldType": "checkbox-with-others"
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "models": [
+        {
+            "id": "checkbox-with-others",
+            "fields": [
+                {
+                    "component": "container",
+                    "name": "basic",
+                    "label": "Basic",
+                    "collapsible": false,
+                    "fields": [
+                        {
+                            "...": "../form-common/_basic-input-fields.json#/fields"
+                        },
+                        {
+                            "component": "multifield",
+                            "name": "enum",
+                            "label": "Options",
+                            "valueType": "array",
+                            "items": {
+                                "fields": [
+                                    {
+                                        "name": "text",
+                                        "label": "Text",
+                                        "component": "text",
+                                        "valueType": "string"
+                                    },
+                                    {
+                                        "name": "value",
+                                        "label": "Value",
+                                        "component": "text",
+                                        "valueType": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "component": "boolean",
+                            "name": "showOtherOption",
+                            "label": "Show Other Option",
+                            "valueType": "boolean",
+                            "value": false
+                        },
+                        {
+                            "component": "text",
+                            "name": "otherOptionLabel",
+                            "label": "Other Option Label",
+                            "valueType": "string",
+                            "value": "Other",
+                            "condition": { "==": [{ "var": "showOtherOption" }, true] }
+                        },
+                        {
+                            "component": "text",
+                            "name": "otherPlaceholder",
+                            "label": "Other Text Field Placeholder",
+                            "valueType": "string",
+                            "value": "Please specify",
+                            "condition": { "==": [{ "var": "showOtherOption" }, true] }
+                        },
+                        {
+                            "component": "radio-group",
+                            "label": "Display Options",
+                            "name": "orientation",
+                            "valueType": "string",
+                            "value": "vertical",
+                            "options": [
+                                {
+                                    "name": "Horizontally",
+                                    "value": "horizontal"
+                                },
+                                {
+                                    "name": "Vertically",
+                                    "value": "vertical"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "...": "../form-common/_help-container.json"
+                },
+                {
+                    "component": "container",
+                    "name": "validation",
+                    "label": "Validation",
+                    "collapsible": true,
+                    "...": "../form-common/_basic-validation-fields.json"
+                }
+            ]
+        }
+    ]
+} 
