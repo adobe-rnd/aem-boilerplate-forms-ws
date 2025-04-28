@@ -324,7 +324,7 @@ export function createRadioOrCheckboxUsingEnum(fd, wrapper) {
     wrapper.append(legend);
   }
   const type = fd.fieldType.split('-')[0];
-  const isSameLength = fd.enum.length === fd.enumNames.length;
+  const isSameLength = fd.enum?.length === fd.enumNames?.length;
   fd.enum.forEach((value, index) => {
     let labelValues = fd?.enumNames;
     if (!isSameLength) {
@@ -340,6 +340,18 @@ export function createRadioOrCheckboxUsingEnum(fd, wrapper) {
       enum: [value],
       required: fd.required,
     });
+    const { variant, 'afs:layout': layout } = fd.properties;
+    if (variant === 'cards') {
+      wrapper.classList.add(variant);
+    } else {
+      wrapper.classList.remove('cards');
+    }
+    if (layout?.orientation === 'horizontal') {
+      wrapper.classList.add('horizontal');
+    }
+    if (layout?.orientation === 'vertical') {
+      wrapper.classList.remove('horizontal');
+    }
     field.classList.remove('field-wrapper', `field-${toClassName(fd.name)}`);
     const input = field.querySelector('input');
     input.id = id;
@@ -405,7 +417,7 @@ export function createDropdownUsingEnum(fd, wrapper) {
           });
         });
     }
-  } else if (options.length !== optionNames.length) {
+  } else if (options?.length !== optionNames.length) {
     options.forEach((value) => addOption(value, value));
   } else {
     options.forEach((value, index) => addOption(optionNames?.[index] ?? value, value));
