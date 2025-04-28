@@ -47,7 +47,7 @@ export default async function decorate(fieldDiv, fieldJson, container, formId) {
         model = fieldModel;
 
         // Update form model to include "Other" option if showOtherOption is true
-        if (showOtherOption) {
+        if (fieldModel.showOtherOption) {
             fieldModel.enum = [...(fieldModel.enum || []), currentOtherValue];
             fieldModel.enumNames = [...(fieldModel.enumNames || []), otherOptionLabel];
             // Re-decorate to let form.js create the checkbox
