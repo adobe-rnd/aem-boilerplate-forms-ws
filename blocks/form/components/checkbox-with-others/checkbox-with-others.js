@@ -110,6 +110,15 @@ export default async function decorate(fieldDiv, fieldJson, container, formId) {
             const { payload } = e;
             payload?.changes?.forEach((change) => {
                 if (change?.propertyName === 'showOtherOption') {
+                    if (change.currentValue) {
+                        // Add "Other" to enum and enumNames
+                        fieldModel.enum = [...(fieldModel.enum || []), 'other'];
+                        fieldModel.enumNames = [...(fieldModel.enumNames || []), 'Others'];
+                    } else {
+                        // Remove "Other" from enum and enumNames
+                        fieldModel.enum = fieldModel.enum.filter(v => v !== 'other');
+                        fieldModel.enumNames = fieldModel.enumNames.filter(n => n !== 'Others');
+                    }
                     // Re-render the component
                     decorate(fieldDiv, fieldJson, container, formId);
                 }
