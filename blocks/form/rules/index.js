@@ -19,7 +19,12 @@
  ************************************************************************ */
 import { submitSuccess, submitFailure } from '../submit.js';
 import {
-  createHelpText, createLabel, updateOrCreateInvalidMsg, getCheckboxGroupValue,
+  createHelpText,
+  createLabel,
+  updateOrCreateInvalidMsg,
+  getCheckboxGroupValue,
+  createDropdownUsingEnum,
+  createRadioOrCheckboxUsingEnum,
 } from '../util.js';
 import registerCustomFunctions from './functionRegistration.js';
 import { externalize } from './functions.js';
@@ -200,6 +205,14 @@ async function fieldChanged(payload, form, generateFormRendition) {
           updateOrCreateInvalidMsg(field, '');
         }
         break;
+      case 'enum':
+      case 'enumNames':
+        if (fieldType === 'radio-group' || fieldType === 'checkbox-group') {
+          createRadioOrCheckboxUsingEnum(fieldModel, field);
+        } else if (fieldType === 'drop-down') {
+          createDropdownUsingEnum(fieldModel, field);
+        }
+        break;
       default:
         break;
     }
@@ -333,9 +346,9 @@ export async function initAdaptiveForm(formDef, createForm) {
 
 /**
  * Subscribes to changes in the specified field element and triggers a callback
- * with access to formModel when changes occur.
+ * with access to formModel when the component is initialised
  * @param {HTMLElement} fieldDiv - The field element to observe for changes.
- * @param {Function} callback - The callback function to execute when changes are detected.
+ * @param {Function} callback - The callback function to which returns fieldModel
  */
 export function subscribe(fieldDiv, formId, callback) {
   if (callback) {
