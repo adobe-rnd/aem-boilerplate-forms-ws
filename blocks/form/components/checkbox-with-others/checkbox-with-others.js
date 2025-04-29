@@ -18,19 +18,20 @@ export default function decorate(fieldDiv, fieldJson, container, formId) {
             fieldDiv.appendChild(otherInput);
             
             const otherCheckbox = fieldDiv.querySelector(`#${fieldDiv.id}-other`);
-            
-            otherCheckbox.addEventListener('change', (e) => {
-                otherInput.style.display = e.target.checked ? 'block' : 'none';
-            });
-            
-            otherInput.addEventListener('blur', (e) => {
-                if (otherCheckbox.checked) {
-                    const otherIndex = fieldModel.enumNames.indexOf(otherOptionLabel);
-                    if (otherIndex !== -1) {
-                        fieldModel.enum[otherIndex] = e.target.value;
+            if (otherCheckbox) {
+                otherCheckbox.addEventListener('change', (e) => {
+                    otherInput.style.display = e.target.checked ? 'block' : 'none';
+                });
+                
+                otherInput.addEventListener('blur', (e) => {
+                    if (otherCheckbox.checked) {
+                        const otherIndex = fieldModel.enumNames.indexOf(otherOptionLabel);
+                        if (otherIndex !== -1) {
+                            fieldModel.enum[otherIndex] = e.target.value;
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     });
     
