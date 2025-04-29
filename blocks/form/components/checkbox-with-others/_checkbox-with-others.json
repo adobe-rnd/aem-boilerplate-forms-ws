@@ -10,7 +10,19 @@
                         "template": {
                             "jcr:title": "Checkbox With Others",
                             "fieldType": "checkbox-with-others",
-                            "fd:viewType": "checkbox-with-others"
+                            "fd:viewType": "checkbox-with-others",
+                            "enum": [
+                                "0",
+                                "1",
+                                ""
+                            ],
+                            "enumNames": [
+                                "Item 1",
+                                "Item 2",
+                                "Other"
+                            ],
+                            "orientation": "horizontal",
+                            "type": "string[]"
                         }
                     }
                 }
@@ -28,59 +40,42 @@
                     "collapsible": false,
                     "fields": [
                         {
-                            "...": "../../models/form-common/_basic-input-fields.json#/fields"
-                        },
-                        {
-                            "component": "multifield",
-                            "name": "enum",
-                            "label": "Options",
-                            "valueType": "array",
-                            "items": {
-                                "fields": [
-                                    {
-                                        "name": "text",
-                                        "label": "Text",
-                                        "component": "text",
-                                        "valueType": "string"
-                                    },
-                                    {
-                                        "name": "value",
-                                        "label": "Value",
-                                        "component": "text",
-                                        "valueType": "string"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "component": "boolean",
-                            "name": "showOtherOption",
-                            "label": "Show Other Option",
-                            "valueType": "boolean",
-                            "value": false
+                            "...": "../../models/form-common/_basic-select-fields.json#/fields"
                         },
                         {
                             "component": "text",
                             "name": "otherOptionLabel",
                             "label": "Other Option Label",
                             "valueType": "string",
-                            "value": "Other",
-                            "condition": { "==": [{ "var": "showOtherOption" }, true] }
+                            "value": "Other"
                         },
                         {
-                            "component": "text",
-                            "name": "otherPlaceholder",
-                            "label": "Other Text Field Placeholder",
+                            "component": "select",
+                            "label": "Data type of submitted value",
+                            "name": "type",
                             "valueType": "string",
-                            "value": "Please specify",
-                            "condition": { "==": [{ "var": "showOtherOption" }, true] }
+                            "value": "string[]",
+                            "options": [
+                                {
+                                    "name": "String",
+                                    "value": "string[]"
+                                },
+                                {
+                                    "name": "Boolean",
+                                    "value": "boolean[]"
+                                },
+                                {
+                                    "name": "Number",
+                                    "value": "number[]"
+                                }
+                            ]
                         },
                         {
                             "component": "radio-group",
                             "label": "Display Options",
                             "name": "orientation",
                             "valueType": "string",
-                            "value": "vertical",
+                            "value": "horizontal",
                             "options": [
                                 {
                                     "name": "Horizontally",
