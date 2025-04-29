@@ -22,7 +22,7 @@ export default function decorate(fieldDiv, fieldJson, container, formId) {
       fieldDiv.appendChild(wrapper);
 
       const otherCheckbox = Array.from(fieldDiv.querySelectorAll('.checkbox-wrapper input[type="checkbox"]')).find(
-        checkbox => checkbox.nextElementSibling?.textContent.trim() === otherOptionLabel
+        (checkbox) => checkbox.nextElementSibling?.textContent.trim() === otherOptionLabel,
       );
       if (otherCheckbox) {
         otherCheckbox.addEventListener('change', (e) => {
@@ -30,10 +30,10 @@ export default function decorate(fieldDiv, fieldJson, container, formId) {
         });
 
         otherInput.addEventListener('blur', (e) => {
-            const otherIndex = fieldModel.enumNames.indexOf(otherOptionLabel);
-            if (otherIndex !== -1) {
-                fieldModel.enum[otherIndex] = e.target.value;
-            }
+          const otherIndex = fieldModel.enumNames.indexOf(otherOptionLabel);
+          if (otherIndex !== -1) {
+            fieldModel.enum[otherIndex] = e.target.value;
+          }
         });
       }
     }

@@ -56,7 +56,7 @@
     ],
     "models": [
         {
-            "id": "checkbox-with-other",
+            "id": "checkbox-with-others",
             "fields": [
                 {
                     "component": "container",
