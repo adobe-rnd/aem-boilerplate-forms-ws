@@ -198,32 +198,6 @@
           }
         },
         {
-          "title": "Checkbox With Others",
-          "id": "checkbox-with-others",
-          "plugins": {
-            "xwalk": {
-              "page": {
-                "resourceType": "core/fd/components/form/checkboxgroup/v1/checkboxgroup",
-                "template": {
-                  "jcr:title": "Checkbox With Others",
-                  "fieldType": "checkbox-group",
-                  "fd:viewType": "checkbox-with-others",
-                  "enum": [
-                    "0",
-                    "1"
-                  ],
-                  "enumNames": [
-                    "Item 1",
-                    "Item 2"
-                  ],
-                  "orientation": "horizontal",
-                  "type": "string[]"
-                }
-              }
-            }
-          }
-        },
-        {
           "title": "Checkbox",
           "id": "checkbox",
           "plugins": {
@@ -533,17 +507,15 @@
                 "resourceType": "core/fd/components/form/checkboxgroup/v1/checkboxgroup",
                 "template": {
                   "jcr:title": "Checkbox With Others",
-                  "fieldType": "checkbox-with-others",
+                  "fieldType": "checkbox-group",
                   "fd:viewType": "checkbox-with-others",
                   "enum": [
                     "0",
-                    "1",
-                    ""
+                    "1"
                   ],
                   "enumNames": [
                     "Item 1",
-                    "Item 2",
-                    "Other"
+                    "Item 2"
                   ],
                   "orientation": "horizontal",
                   "type": "string[]"
