@@ -1,13 +1,12 @@
 import { subscribe } from '../../rules/index.js';
 import { createRadioOrCheckboxUsingEnum } from '../../util.js';
 
-let model = null;
 export default function decorate(fieldDiv, fieldJson, container, formId) {
   const otherOptionLabel = fieldJson?.properties?.otherOptionLabel || 'Other';
   subscribe(fieldDiv, formId, async (element, fieldModel) => {
     model = fieldModel;
 
-    if (model.properties?.showOtherOption) {
+    if (fieldJson?.properties?.showOtherOption) {
       fieldModel.enum = [...(fieldModel.enum || []), 'Other'];
       fieldModel.enumNames = [...(fieldModel.enumNames || []), otherOptionLabel];
       createRadioOrCheckboxUsingEnum(fieldModel, fieldDiv);
