@@ -17,7 +17,11 @@ export default function decorate(fieldDiv, fieldJson, container, formId) {
       otherInput.classList.add('other-input');
       otherInput.placeholder = 'Please specify';
       otherInput.style.display = 'none';
-      fieldDiv.appendChild(otherInput);
+
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('other-field-wrapper');
+      wrapper.appendChild(otherInput);
+      fieldDiv.appendChild(wrapper);
 
       const otherCheckbox = Array.from(fieldDiv.querySelectorAll('.checkbox-wrapper input[type="checkbox"]')).find(
         checkbox => checkbox.nextElementSibling?.textContent.trim() === otherOptionLabel
