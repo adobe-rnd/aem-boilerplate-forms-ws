@@ -1,6 +1,6 @@
 import { subscribe } from '../../rules/index.js';
 
-
+let model = null;
 export default function decorate(fieldDiv, fieldJson, container, formId) {
     let currentOtherValue = '';
     const otherOptionLabel = fieldJson?.properties?.otherOptionLabel || 'Other';
