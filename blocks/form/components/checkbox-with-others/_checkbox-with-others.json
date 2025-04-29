@@ -19,7 +19,7 @@
                                 "Item 1",
                                 "Item 2"
                             ],
-                            "orientation": "horizontal",
+                            "orientation": "vertical",
                             "type": "string[]"
                         }
                     }
@@ -52,7 +52,15 @@
                             "name": "otherOptionLabel",
                             "label": "Other Option Label",
                             "valueType": "string",
-                            "value": "Other"
+                            "value": "Other",
+                            "condition": {
+                                "===": [
+                                    {
+                                        "var": "showOtherOption"
+                                    },
+                                    true
+                                ]
+                            }
                         },
                         {
                             "component": "select",

@@ -4292,7 +4292,15 @@
             "name": "otherOptionLabel",
             "label": "Other Option Label",
             "valueType": "string",
-            "value": "Other"
+            "value": "Other",
+            "condition": {
+              "===": [
+                {
+                  "var": "showOtherOption"
+                },
+                true
+              ]
+            }
           },
           {
             "component": "select",

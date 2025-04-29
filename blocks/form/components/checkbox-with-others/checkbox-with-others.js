@@ -1,4 +1,5 @@
 import { subscribe } from '../../rules/index.js';
+import { createRadioOrCheckboxUsingEnum } from '../../util.js';
 
 let model = null;
 export default function decorate(fieldDiv, fieldJson, container, formId) {
@@ -7,16 +8,20 @@ export default function decorate(fieldDiv, fieldJson, container, formId) {
     model = fieldModel;
 
     if (model.properties?.showOtherOption) {
-      fieldModel.enum = [...(fieldModel.enum || []), ''];
+      fieldModel.enum = [...(fieldModel.enum || []), 'Other'];
       fieldModel.enumNames = [...(fieldModel.enumNames || []), otherOptionLabel];
+      createRadioOrCheckboxUsingEnum(fieldModel, fieldDiv);
 
       const otherInput = document.createElement('input');
       otherInput.type = 'text';
       otherInput.classList.add('other-input');
+      otherInput.placeholder = 'Please specify';
       otherInput.style.display = 'none';
       fieldDiv.appendChild(otherInput);
 
-      const otherCheckbox = fieldDiv.querySelector(`#${fieldDiv.id}-other`);
+      const otherCheckbox = Array.from(fieldDiv.querySelectorAll('.checkbox-wrapper input[type="checkbox"]')).find(
+        checkbox => checkbox.nextElementSibling?.textContent.trim() === otherOptionLabel
+      );
       if (otherCheckbox) {
         otherCheckbox.addEventListener('change', (e) => {
           otherInput.style.display = e.target.checked ? 'block' : 'none';
