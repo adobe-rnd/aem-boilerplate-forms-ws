@@ -28,12 +28,10 @@ export default function decorate(fieldDiv, fieldJson, container, formId) {
         });
 
         otherInput.addEventListener('blur', (e) => {
-          if (otherCheckbox.checked) {
             const otherIndex = fieldModel.enumNames.indexOf(otherOptionLabel);
             if (otherIndex !== -1) {
-              fieldModel.enum[otherIndex] = e.target.value;
+                fieldModel.enum[otherIndex] = e.target.value;
             }
-          }
         });
       }
     }
