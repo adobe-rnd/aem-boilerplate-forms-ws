@@ -19,7 +19,7 @@ export default function decorate(fieldDiv, fieldJson, container, formId) {
       otherInput.style.display = 'none';
 
       const wrapper = document.createElement('div');
-      wrapper.classList.add('other-field-wrapper');
+      wrapper.classList.add('field-wrapper');
       wrapper.appendChild(otherInput);
       fieldDiv.appendChild(wrapper);
 
