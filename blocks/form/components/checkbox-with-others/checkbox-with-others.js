@@ -4,8 +4,6 @@ import { createRadioOrCheckboxUsingEnum } from '../../util.js';
 export default function decorate(fieldDiv, fieldJson, container, formId) {
   const otherOptionLabel = fieldJson?.properties?.otherOptionLabel || 'Other';
   subscribe(fieldDiv, formId, async (element, fieldModel) => {
-    model = fieldModel;
-
     if (fieldJson?.properties?.showOtherOption) {
       fieldModel.enum = [...(fieldModel.enum || []), 'Other'];
       fieldModel.enumNames = [...(fieldModel.enumNames || []), otherOptionLabel];
