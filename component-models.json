@@ -4138,7 +4138,7 @@
     ]
   },
   {
-    "id": "checkbox-with-others",
+    "id": "checkbox-with-other",
     "fields": [
       {
         "component": "container",
