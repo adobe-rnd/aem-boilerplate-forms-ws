@@ -4258,87 +4258,6 @@
                 "value": "12"
               }
             ]
-          },
-          {
-            "component": "text",
-            "name": "enum",
-            "label": "Options (Data Value)",
-            "valueType": "string",
-            "multi": true,
-            "required": true
-          },
-          {
-            "component": "text",
-            "name": "enumNames",
-            "label": "Options (Display Value)",
-            "valueType": "string",
-            "multi": true
-          },
-          {
-            "component": "text",
-            "name": "default",
-            "label": "Default option",
-            "valueType": "string"
-          },
-          {
-            "component": "boolean",
-            "name": "showOtherOption",
-            "label": "Show Other Option",
-            "valueType": "boolean",
-            "value": false
-          },
-          {
-            "component": "text",
-            "name": "otherOptionLabel",
-            "label": "Other Option Label",
-            "valueType": "string",
-            "value": "Other",
-            "condition": {
-              "===": [
-                {
-                  "var": "showOtherOption"
-                },
-                true
-              ]
-            }
-          },
-          {
-            "component": "select",
-            "label": "Data type of submitted value",
-            "name": "type",
-            "valueType": "string",
-            "value": "string[]",
-            "options": [
-              {
-                "name": "String",
-                "value": "string[]"
-              },
-              {
-                "name": "Boolean",
-                "value": "boolean[]"
-              },
-              {
-                "name": "Number",
-                "value": "number[]"
-              }
-            ]
-          },
-          {
-            "component": "radio-group",
-            "label": "Display Options",
-            "name": "orientation",
-            "valueType": "string",
-            "value": "horizontal",
-            "options": [
-              {
-                "name": "Horizontally",
-                "value": "horizontal"
-              },
-              {
-                "name": "Vertically",
-                "value": "vertical"
-              }
-            ]
           }
         ]
       },
@@ -4359,34 +4278,6 @@
             "name": "tooltip",
             "label": "Short description",
             "valueType": "string"
-          }
-        ]
-      },
-      {
-        "component": "container",
-        "name": "validation",
-        "label": "Validation",
-        "collapsible": true,
-        "fields": [
-          {
-            "component": "boolean",
-            "name": "required",
-            "label": "Required",
-            "valueType": "boolean"
-          },
-          {
-            "component": "text",
-            "name": "mandatoryMessage",
-            "label": "Error message",
-            "valueType": "string",
-            "description": "Error message shown when required field is left empty."
-          },
-          {
-            "component": "text",
-            "name": "validateExpMessage",
-            "label": "Script validation message",
-            "valueType": "string",
-            "description": "Displayed when validation script fails."
           }
         ]
       }

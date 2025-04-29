@@ -63,81 +63,10 @@
                     "name": "basic",
                     "label": "Basic",
                     "collapsible": false,
-                    "fields": [
-                        {
-                            "...": "../../models/form-common/_basic-select-fields.json#/fields"
-                        },
-                        {
-                            "component": "boolean",
-                            "name": "showOtherOption",
-                            "label": "Show Other Option",
-                            "valueType": "boolean",
-                            "value": false
-                        },
-                        {
-                            "component": "text",
-                            "name": "otherOptionLabel",
-                            "label": "Other Option Label",
-                            "valueType": "string",
-                            "value": "Other",
-                            "condition": {
-                                "===": [
-                                    {
-                                        "var": "showOtherOption"
-                                    },
-                                    true
-                                ]
-                            }
-                        },
-                        {
-                            "component": "select",
-                            "label": "Data type of submitted value",
-                            "name": "type",
-                            "valueType": "string",
-                            "value": "string[]",
-                            "options": [
-                                {
-                                    "name": "String",
-                                    "value": "string[]"
-                                },
-                                {
-                                    "name": "Boolean",
-                                    "value": "boolean[]"
-                                },
-                                {
-                                    "name": "Number",
-                                    "value": "number[]"
-                                }
-                            ]
-                        },
-                        {
-                            "component": "radio-group",
-                            "label": "Display Options",
-                            "name": "orientation",
-                            "valueType": "string",
-                            "value": "horizontal",
-                            "options": [
-                                {
-                                    "name": "Horizontally",
-                                    "value": "horizontal"
-                                },
-                                {
-                                    "name": "Vertically",
-                                    "value": "vertical"
-                                }
-                            ]
-                        }
-                    ]
+                    "...": "../../models/form-common/_basic-input-fields.json"
                 },
                 {
                     "...": "../../models/form-common/_help-container.json"
-                },
-                {
-                    "component": "container",
-                    "name": "validation",
-                    "label": "Validation",
-                    "collapsible": true,
-                    "...": "../../models/form-common/_basic-validation-fields.json"
                 }
             ]
         }
