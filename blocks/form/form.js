@@ -637,20 +637,20 @@ export async function embedForm(formUrl, element) {
 
   try {
     element.innerHTML = '';
-    
+
     const loadingPlaceholder = document.createElement('div');
     loadingPlaceholder.textContent = 'Loading Form...';
     element.appendChild(loadingPlaceholder);
 
     const url = new URL(formUrl);
-    const formPath = formUrl.includes('/jcr:content') 
+    const formPath = formUrl.includes('/jcr:content')
       ? formUrl.split('/jcr:content')[0]
       : formUrl;
 
     const style = document.createElement('link');
     style.rel = 'stylesheet';
     style.href = `${url.origin}/blocks/form/form.css`;
-    
+
     await new Promise((resolve, reject) => {
       style.onload = resolve;
       style.onerror = () => reject(new Error('Failed to load form CSS'));
