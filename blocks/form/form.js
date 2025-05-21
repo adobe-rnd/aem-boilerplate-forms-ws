@@ -629,3 +629,43 @@ export default async function decorate(block) {
     container.replaceWith(form);
   }
 }
+
+export async function embedForm(formUrl, element) {
+  if (!formUrl || !element) {
+    throw new Error('formUrl and element are required parameters');
+  }
+
+  try {
+    element.innerHTML = '';
+    
+    const loadingPlaceholder = document.createElement('div');
+    loadingPlaceholder.textContent = 'Loading Form...';
+    element.appendChild(loadingPlaceholder);
+
+    const url = new URL(formUrl);
+    const formPath = formUrl.includes('/jcr:content') 
+      ? formUrl.split('/jcr:content')[0]
+      : formUrl;
+
+    const style = document.createElement('link');
+    style.rel = 'stylesheet';
+    style.href = `${url.origin}/blocks/form/form.css`;
+    
+    await new Promise((resolve, reject) => {
+      style.onload = resolve;
+      style.onerror = () => reject(new Error('Failed to load form CSS'));
+      document.head.appendChild(style);
+    });
+
+    const formLink = document.createElement('a');
+    formLink.href = formPath;
+    formLink.style.all = 'unset';
+    element.appendChild(formLink);
+
+    await decorate(element);
+  } catch (error) {
+    console.error('Error embedding form:', error);
+    element.innerHTML = `<div class="form-error">Failed to load form: ${error.message}</div>`;
+    throw error;
+  }
+}
