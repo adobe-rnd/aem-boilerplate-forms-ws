@@ -658,12 +658,7 @@ export async function embedForm(formUrl, element) {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
     style.href = `${url.origin}/blocks/form/form.css`;
-
-    await new Promise((resolve, reject) => {
-      style.onload = resolve;
-      style.onerror = () => reject(new Error('Failed to load form CSS'));
-      document.head.appendChild(style);
-    });
+    document.head.appendChild(style);
 
     const formLink = document.createElement('a');
     formLink.href = formPath;
@@ -671,6 +666,7 @@ export async function embedForm(formUrl, element) {
     element.appendChild(formLink);
 
     await decorate(element);
+    loadingPlaceholder.remove();
   } catch (error) {
     console.error('Error embedding form:', error);
     element.innerHTML = `<div class="form-error">Failed to load form: ${error.message}</div>`;
