@@ -659,14 +659,34 @@ export async function embedForm(formUrl, element) {
     formStyles.rel = 'stylesheet';
     formStyles.href = `${url.origin}/blocks/form/form.css`;
 
-    const loadStylesheets = async (path) => {
+    const loadStylesheets = async (basePath) => {
       try {
         const cssFiles = ['styles.css', 'fonts.css'];
+        const fontFiles = [
+          'roboto-condensed-bold.woff2',
+          'roboto-bold.woff2',
+          'roboto-medium.woff2',
+          'roboto-regular.woff2'
+        ];
+        
+        const fontPromises = fontFiles.map(fontFile => {
+          return new Promise((resolve) => {
+            const font = new FontFace('Inter', `url(${basePath}/fonts/${fontFile})`);
+            font.load().then(() => {
+              document.fonts.add(font);
+              resolve();
+            }).catch(() => {
+              console.error(`Failed to load ${fontFile}`);
+              resolve();
+            });
+          });
+        });
+
         const stylePromises = cssFiles.map(cssFile => {
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve) => {
             const style = document.createElement('link');
             style.rel = 'stylesheet';
-            style.href = `${path}/${cssFile}`;
+            style.href = `${basePath}/styles/${cssFile}`;
             style.onload = resolve;
             style.onerror = () => {
               console.error(`Failed to load ${cssFile}`);
@@ -676,13 +696,14 @@ export async function embedForm(formUrl, element) {
           });
         });
 
+        await Promise.all(fontPromises);
         await Promise.all(stylePromises);
       } catch (error) {
         console.error('Error in loadStylesheets:', error);
       }
     };
 
-    await loadStylesheets(`${url.origin}/styles`);
+    await loadStylesheets(url.origin);
     await new Promise((resolve, reject) => {
       formStyles.onload = resolve;
       formStyles.onerror = () => reject(new Error('Failed to load form CSS'));
