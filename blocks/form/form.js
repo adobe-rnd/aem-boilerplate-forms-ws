@@ -703,7 +703,7 @@ export async function embedForm(formUrl, element) {
       }
     };
 
-    await loadStylesheets(url.origin);
+    // await loadStylesheets(url.origin);
     await new Promise((resolve, reject) => {
       formStyles.onload = resolve;
       formStyles.onerror = () => reject(new Error('Failed to load form CSS'));
