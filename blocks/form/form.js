@@ -668,14 +668,17 @@ export async function embedForm(formUrl, element) {
             style.rel = 'stylesheet';
             style.href = `${path}/${cssFile}`;
             style.onload = resolve;
-            style.onerror = () => reject(new Error(`Failed to load ${cssFile}`));
+            style.onerror = () => {
+              console.error(`Failed to load ${cssFile}`);
+              resolve();
+            };
             document.head.appendChild(style);
           });
         });
 
         await Promise.all(stylePromises);
       } catch (error) {
-        console.error('Error loading stylesheets:', error);
+        console.error('Error in loadStylesheets:', error);
       }
     };
 
