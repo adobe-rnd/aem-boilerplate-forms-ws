@@ -661,7 +661,7 @@ export async function embedForm(formUrl, element) {
 
     const loadStylesheets = async (path) => {
       try {
-        const cssFiles = ['styles/styles.css', 'styles/fonts.css'];
+        const cssFiles = ['styles.css', 'fonts.css'];
         const stylePromises = cssFiles.map(cssFile => {
           return new Promise((resolve, reject) => {
             const style = document.createElement('link');
