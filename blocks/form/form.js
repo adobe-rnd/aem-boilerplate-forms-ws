@@ -655,10 +655,39 @@ export async function embedForm(formUrl, element) {
       ? formUrl.split('/jcr:content')[0]
       : formUrl;
 
-    const style = document.createElement('link');
-    style.rel = 'stylesheet';
-    style.href = `${url.origin}/blocks/form/form.css`;
-    document.head.appendChild(style);
+    const formStyles = document.createElement('link');
+    formStyles.rel = 'stylesheet';
+    formStyles.href = `${url.origin}/blocks/form/form.css`;
+
+    const loadStylesheets = async (path) => {
+      try {
+        const response = await fetch(path);
+        const files = await response.json();
+        
+        const cssFiles = files.filter(file => file.endsWith('.css'));
+        const stylePromises = cssFiles.map(cssFile => {
+          return new Promise((resolve, reject) => {
+            const style = document.createElement('link');
+            style.rel = 'stylesheet';
+            style.href = `${path}/${cssFile}`;
+            style.onload = resolve;
+            style.onerror = () => reject(new Error(`Failed to load ${cssFile}`));
+            document.head.appendChild(style);
+          });
+        });
+
+        await Promise.all(stylePromises);
+      } catch (error) {
+        console.error('Error loading stylesheets:', error);
+      }
+    };
+
+    await loadStylesheets(`${url.origin}/styles`);
+    await new Promise((resolve, reject) => {
+      formStyles.onload = resolve;
+      formStyles.onerror = () => reject(new Error('Failed to load form CSS'));
+      document.head.appendChild(formStyles);
+    });
 
     const formLink = document.createElement('a');
     formLink.href = formPath;
