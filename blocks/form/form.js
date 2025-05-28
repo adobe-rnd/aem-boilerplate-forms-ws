@@ -615,7 +615,7 @@ export default async function decorate(block) {
       rules = false;
     } else {
       afModule = await import('./rules/index.js');
-      const useWorker = new URLSearchParams(window.location.search).get('useWorker') !== 'false';
+      const useWorker = new URL(import.meta.url).searchParams.get('useWorker') !== 'false';
       if (afModule && afModule.initAdaptiveForm && !block.classList.contains('edit-mode')) {
         form = await afModule.initAdaptiveForm(formDef, async (model, data) => {
           formDef = useWorker ? model : model.getState();
