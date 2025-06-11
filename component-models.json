@@ -1357,6 +1357,12 @@
             "valueType": "string"
           },
           {
+            "component": "boolean",
+            "label": "Allow multiple selection",
+            "name": "multiSelect",
+            "valueType": "boolean"
+          },
+          {
             "component": "select",
             "label": "Data type of submitted value",
             "name": "type",
