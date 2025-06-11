@@ -374,6 +374,12 @@ export function createDropdownUsingEnum(fd, wrapper) {
   wrapper.title = fd.tooltip ? stripTags(fd.tooltip, '') : '';
   wrapper.readOnly = fd.readOnly;
   wrapper.multiple = fd.type === 'string[]' || fd.type === 'boolean[]' || fd.type === 'number[]';
+  
+  // Expand height by 50px for array types
+  if (fd.type && fd.type.endsWith('[]')) {
+    wrapper.style.height = 'calc(2.5rem + 50px)';
+  }
+  
   let ph;
   if (fd.placeholder) {
     ph = document.createElement('option');
