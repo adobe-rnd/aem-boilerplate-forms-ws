@@ -354,11 +354,6 @@ function decorateTemplateAndTheme() {
  * @param {Element} block the block element
  */
 function wrapTextNodes(block) {
-  // Skip text wrapping for form blocks to prevent unwanted p tags in form content
-  if (block.classList.contains('form')) {
-    return;
-  }
-
   const validWrappers = [
     'P',
     'PRE',
