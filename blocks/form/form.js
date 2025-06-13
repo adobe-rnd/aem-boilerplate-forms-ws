@@ -338,7 +338,6 @@ export async function createForm(formDef, data) {
   const form = document.createElement('form');
   form.dataset.action = formPath;
   form.noValidate = true;
-  form.dataset.source = isDocumentBasedForm(formDef) ? 'sheet' : 'aem';
   if (formDef.appliedCssClassNames) {
     form.className = formDef.appliedCssClassNames;
   }
@@ -542,6 +541,7 @@ export default async function decorate(block) {
     form.dataset.redirectUrl = formDef.redirectUrl || '';
     form.dataset.thankYouMsg = formDef.thankYouMsg || '';
     form.dataset.action = formDef.action || pathname?.split('.json')[0];
+    form.dataset.source = source;
     form.dataset.rules = rules;
     form.dataset.id = formDef.id;
     if (source === 'aem' && formDef.properties && formDef.properties['fd:path']) {
