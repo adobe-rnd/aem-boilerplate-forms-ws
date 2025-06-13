@@ -246,26 +246,11 @@ function decoratePanelContainer(panelDefinition, panelContainer) {
 
   const shouldAddLabel = (container, panel) => panel.label && !container.querySelector(`legend[for=${container.dataset.id}]`);
 
-  const isContainerRepeatable = (container) => container.dataset?.repeatable === 'true' && container.dataset?.variant !== 'noButtons';
-
-  const needsAddButton = (container) => !container.querySelector(':scope > .repeat-actions');
-
-  const needsRemoveButton = (container) => !container.querySelector(':scope > .item-remove');
-
   if (isPanelWrapper(panelContainer)) {
     if (shouldAddLabel(panelContainer, panelDefinition)) {
       const legend = createLegend(panelDefinition);
       if (legend) {
         panelContainer.insertAdjacentElement('afterbegin', legend);
-      }
-    }
-
-    if (isContainerRepeatable(panelContainer)) {
-      if (needsAddButton(panelContainer)) {
-        insertAddButton(panelContainer, panelContainer);
-      }
-      if (needsRemoveButton(panelContainer)) {
-        insertRemoveButton(panelContainer, panelContainer);
       }
     }
   }
@@ -349,6 +334,7 @@ export async function createForm(formDef, data) {
   const form = document.createElement('form');
   form.dataset.action = formPath;
   form.noValidate = true;
+  form.dataset.source = isDocumentBasedForm(formDef) ? 'sheet' : 'aem';
   if (formDef.appliedCssClassNames) {
     form.className = formDef.appliedCssClassNames;
   }
@@ -371,7 +357,7 @@ export async function createForm(formDef, data) {
   }
 
   enableValidation(form);
-  transferRepeatableDOM(form);
+  transferRepeatableDOM(form, formDef, form, formId);
 
   if (afModule && typeof Worker === 'undefined') {
     window.setTimeout(async () => {
@@ -556,7 +542,6 @@ export default async function decorate(block) {
     form.dataset.redirectUrl = formDef.redirectUrl || '';
     form.dataset.thankYouMsg = formDef.thankYouMsg || '';
     form.dataset.action = formDef.action || pathname?.split('.json')[0];
-    form.dataset.source = source;
     form.dataset.rules = rules;
     form.dataset.id = formDef.id;
     if (source === 'aem' && formDef.properties && formDef.properties['fd:path']) {
