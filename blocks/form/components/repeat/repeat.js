@@ -43,9 +43,9 @@ function createButton(label, icon) {
 function updateButtonVisibilityForNonAEM(wrapper) {
   const instances = wrapper.querySelectorAll('[data-repeatable="true"]');
   const count = instances.length;
-  const min = parseInt(wrapper.dataset.min || 0);
-  const max = parseInt(wrapper.dataset.max || -1);
-  
+  const min = parseInt(wrapper.dataset.min || 0, 10);
+  const max = parseInt(wrapper.dataset.max || -1, 10);
+
   // Control add button
   const addButton = wrapper.querySelector('.item-add');
   if (addButton) {
@@ -55,10 +55,10 @@ function updateButtonVisibilityForNonAEM(wrapper) {
       addButton.style.display = 'block';
     }
   }
-  
+
   // Control remove buttons
   const removeButtons = wrapper.querySelectorAll('.item-remove');
-  removeButtons.forEach(btn => {
+  removeButtons.forEach((btn) => {
     if (count <= min) {
       btn.style.display = 'none';
     } else {
@@ -84,9 +84,9 @@ export class RepeatManager {
   updateButtonVisibility() {
     const instances = this.wrapper.querySelectorAll('[data-repeatable="true"]');
     const count = instances.length;
-    const min = parseInt(this.wrapper.dataset.min || 0);
-    const max = parseInt(this.wrapper.dataset.max || -1);
-    
+    const min = parseInt(this.wrapper.dataset.min || 0, 10);
+    const max = parseInt(this.wrapper.dataset.max || -1, 10);
+
     // Control add button
     const addButton = this.wrapper.querySelector('.item-add');
     if (addButton) {
@@ -96,10 +96,10 @@ export class RepeatManager {
         addButton.style.display = 'block';
       }
     }
-    
+
     // Control remove buttons
     const removeButtons = this.wrapper.querySelectorAll('.item-remove');
-    removeButtons.forEach(btn => {
+    removeButtons.forEach((btn) => {
       if (count <= min) {
         btn.style.display = 'none';
       } else {
@@ -114,7 +114,7 @@ export class RepeatManager {
       // Use the model's addInstance function
       const action = { type: 'addInstance', payload: this.fieldModel.items?.length || 0 };
       this.fieldModel.addItem(action);
-      
+
       // The UI will automatically update via the fieldChanged listener in rules/index.js
     }
   }
@@ -131,28 +131,28 @@ export class RepeatManager {
   // Add remove buttons to instances that don't have them
   addRemoveButtonsToInstances() {
     const instances = this.wrapper.querySelectorAll('[data-repeatable="true"]');
-    
-    instances.forEach((instance, index) => {
+
+    instances.forEach((instance) => {
       const existingRemoveButton = instance.querySelector('.item-remove');
       if (!existingRemoveButton) {
-        this.insertRemoveButton(instance, index);
+        this.insertRemoveButton(instance);
       }
     });
   }
 
   // Insert remove button with model-driven functionality
-  insertRemoveButton(fieldset, instanceIndex) {
+  insertRemoveButton(fieldset) {
     const label = fieldset.dataset?.repeatDeleteButtonLabel || this.wrapper.dataset?.repeatDeleteButtonLabel || 'Delete';
     const removeButton = createButton(label, 'remove');
-    
+
     removeButton.addEventListener('click', () => {
       // Find the current index dynamically in case instances have been reordered
       const allInstances = this.wrapper.querySelectorAll('[data-repeatable="true"]');
       const currentIndex = Array.from(allInstances).indexOf(fieldset);
-      
+
       this.removeInstance(currentIndex);
     });
-    
+
     fieldset.append(removeButton);
   }
 
@@ -160,7 +160,7 @@ export class RepeatManager {
     // Subscribe to model changes for the container that manages the repeatable elements
     subscribe(this.containerElement, this.formId, (fieldDiv, fieldModel) => {
       this.setFieldModel(fieldModel);
-      
+
       // Listen for items changes to handle UI updates automatically
       fieldModel.subscribe((e) => {
         const { payload } = e;
@@ -187,7 +187,7 @@ export function insertRemoveButton(fieldset, wrapper, form) {
     const repeatWrapper = fieldset.closest('.repeat-wrapper');
     const allInstances = repeatWrapper.querySelectorAll('[data-repeatable="true"]');
     const currentIndex = Array.from(allInstances).indexOf(fieldset);
-    
+
     // For AEM forms, try to use RepeatManager if available
     if (form.dataset.source === 'aem' && repeatWrapper.repeatManager) {
       repeatWrapper.repeatManager.removeInstance(currentIndex);
@@ -197,10 +197,10 @@ export function insertRemoveButton(fieldset, wrapper, form) {
       wrapper.querySelectorAll('[data-repeatable="true"]').forEach((el, index) => {
         update(el, index, wrapper['#repeat-template-label']);
       });
-      
+
       // Update button visibility for non-AEM forms
       updateButtonVisibilityForNonAEM(wrapper);
-      
+
       const event = new CustomEvent('item:remove', {
         detail: { item: { name: fieldset.name, id: fieldset.id } },
         bubbles: false,
@@ -211,22 +211,22 @@ export function insertRemoveButton(fieldset, wrapper, form) {
   fieldset.append(removeButton);
 }
 
-export const add = (wrapper, form, actions) => (e) => {
+export const add = (wrapper, form, actions) => () => {
   const fieldset = wrapper['#repeat-template'];
   const childCount = wrapper.children.length - 1;
   const newFieldset = fieldset.cloneNode(true);
   newFieldset.setAttribute('data-index', childCount);
   update(newFieldset, childCount, wrapper['#repeat-template-label']);
-  
+
   // Add the new instance first
   actions.insertAdjacentElement('beforebegin', newFieldset);
-  
+
   // Add remove button to the new instance for non-AEM forms
   insertRemoveButton(newFieldset, wrapper, form);
-  
+
   // Update button visibility for non-AEM forms
   updateButtonVisibilityForNonAEM(wrapper);
-  
+
   const event = new CustomEvent('item:add', {
     detail: { item: { name: newFieldset.name, id: newFieldset.id } },
     bubbles: false,
@@ -271,10 +271,10 @@ export default function transferRepeatableDOM(form, formDef, container, formId) 
     wrapper.dataset.variant = el.dataset.variant || 'addDeleteButtons';
     wrapper.dataset.repeatAddButtonLabel = el.dataset?.repeatAddButtonLabel ? el.dataset.repeatAddButtonLabel : 'Add';
     wrapper.dataset.repeatDeleteButtonLabel = el.dataset?.repeatDeleteButtonLabel ? el.dataset.repeatDeleteButtonLabel : 'Remove';
-    
+
     // Set the ID to match the repeatable element for model subscription
     wrapper.dataset.id = el.dataset.id;
-    
+
     el.insertAdjacentElement('beforebegin', wrapper);
     wrapper.append(...instances);
     wrapper.querySelectorAll('.item-remove').forEach((element) => element.remove());
@@ -283,7 +283,7 @@ export default function transferRepeatableDOM(form, formDef, container, formId) 
     cloneNode.removeAttribute('id');
     wrapper['#repeat-template'] = cloneNode;
     wrapper['#repeat-template-label'] = el.querySelector(':scope>.field-label')?.textContent;
-    
+
     // Create repeat manager only for AEM forms with model-driven approach
     let repeatManager = null;
     if (form.dataset.source === 'aem') {
@@ -292,14 +292,14 @@ export default function transferRepeatableDOM(form, formDef, container, formId) 
       wrapper.repeatManager = repeatManager;
       repeatManager.setupModelSubscription();
     }
-    
+
     if (+el.dataset.min === 0) {
       el.remove();
     } else {
       update(el, 0, wrapper['#repeat-template-label']);
       el.setAttribute('data-index', 0);
     }
-    
+
     // Add remove buttons to existing instances
     if (repeatManager) {
       // For AEM forms, let RepeatManager handle adding remove buttons and initial visibility
@@ -307,18 +307,18 @@ export default function transferRepeatableDOM(form, formDef, container, formId) 
       // Initial button visibility will be set when model subscription is established
     } else {
       // For non-AEM forms, use the original approach
-      instances.forEach((instance, index) => {
+      instances.forEach((instance) => {
         insertRemoveButton(instance, wrapper, form);
       });
       // Set initial button visibility for non-AEM forms
       updateButtonVisibilityForNonAEM(wrapper);
     }
-    
+
     if (el.dataset.variant !== 'noButtons') {
       insertAddButton(wrapper, form, repeatManager);
     }
     wrapper.className = 'repeat-wrapper';
-    
+
     // For AEM forms, set initial button visibility after setup is complete
     if (repeatManager) {
       repeatManager.updateButtonVisibility();

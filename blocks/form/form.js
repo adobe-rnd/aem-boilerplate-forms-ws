@@ -318,6 +318,10 @@ function enableValidation(form) {
   });
 }
 
+function isDocumentBasedForm(formDef) {
+  return formDef?.[':type'] === 'sheet' && formDef?.data;
+}
+
 async function createFormForAuthoring(formDef) {
   const form = document.createElement('form');
   await generateFormRendition(formDef, form, formDef.id, (container) => {
@@ -382,10 +386,6 @@ export async function createForm(formDef, data) {
     generateFormRendition,
     data,
   };
-}
-
-function isDocumentBasedForm(formDef) {
-  return formDef?.[':type'] === 'sheet' && formDef?.data;
 }
 
 function cleanUp(content) {
