@@ -133,7 +133,9 @@ function setupModelSubscription(wrapper, form, formId) {
       const { payload } = e;
       payload?.changes?.forEach((change) => {
         if (change?.propertyName === 'items') {
-          // Use requestAnimationFrame to ensure DOM updates are complete
+          // Reason for requestAnimationFrame: Model changes fire immediately but DOM updates happen asynchronously.
+          // We need to wait for the browser's next paint cycle to ensure the new/removed fieldsets are
+          // in the DOM before adding/updating buttons.
           requestAnimationFrame(() => {
             addRemoveButtons(wrapper, form, false, true);
             updateButtonVisibility(wrapper);
