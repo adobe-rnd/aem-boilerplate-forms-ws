@@ -68,7 +68,6 @@ function removeInstanceViaModel(wrapper, instanceIndex) {
   if (wrapper.fieldModel) {
     const action = { type: 'removeInstance', payload: instanceIndex };
     wrapper.fieldModel.removeItem(action);
-    // The UI will automatically update via the fieldChanged listener
   }
 }
 
@@ -76,7 +75,6 @@ function addInstanceViaModel(wrapper) {
   if (wrapper.fieldModel) {
     const action = { type: 'addInstance', payload: wrapper.fieldModel.items?.length || 0 };
     wrapper.fieldModel.addItem(action);
-    // The UI will automatically update via the fieldChanged listener
   }
 }
 
