@@ -133,9 +133,10 @@ function setupModelSubscription(wrapper, form, formId) {
       const { payload } = e;
       payload?.changes?.forEach((change) => {
         if (change?.propertyName === 'items') {
-          // Reason for requestAnimationFrame: Model changes fire immediately but DOM updates happen asynchronously.
-          // We need to wait for the browser's next paint cycle to ensure the new/removed fieldsets are
-          // in the DOM before adding/updating buttons.
+          // eslint-disable-next-line max-len
+          // Reason for requestAnimationFrame: Model changes fire immediately but DOM updates are async.
+          // We need to wait for the browser's next paint cycle to ensure the new/removed fieldsets
+          // are in the DOM before adding/updating buttons.
           requestAnimationFrame(() => {
             addRemoveButtons(wrapper, form, false, true);
             updateButtonVisibility(wrapper);
