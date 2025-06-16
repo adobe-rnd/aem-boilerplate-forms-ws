@@ -234,14 +234,16 @@ export default function transferRepeatableDOM(form, formDef, container, formId) 
       el.setAttribute('data-index', 0);
     }
 
+    // Setup AEM model subscription for non-doc-based forms
     if (!isDocBased) {
       setupAEMModelSubscription(wrapper, form, formId);
-      addRemoveButtons(wrapper, form, isDocBased, true);
-    } else {
-      const min = parseInt(wrapper.dataset.min || 0, 10);
-      if (instances.length > min) {
-        addRemoveButtons(wrapper, form, isDocBased, false);
-      }
+    }
+
+    // Add remove buttons if there are more instances than minimum
+    const min = parseInt(wrapper.dataset.min || 0, 10);
+    if (instances.length > min) {
+      // Only difference: checkExisting parameter (true for AEM, false for doc-based)
+      addRemoveButtons(wrapper, form, isDocBased, !isDocBased);
     }
 
     if (el.dataset.variant !== 'noButtons') {
