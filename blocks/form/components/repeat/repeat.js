@@ -125,7 +125,7 @@ function addRemoveButtons(wrapper, form, isDocBased = false, checkExisting = fal
   });
 }
 
-function setupAEMModelSubscription(wrapper, form, formId) {
+function setupModelSubscription(wrapper, form, formId) {
   const containerElement = wrapper.closest('fieldset[data-id]');
   subscribe(containerElement, formId, (fieldDiv, fieldModel) => {
     wrapper.fieldModel = fieldModel;
@@ -232,12 +232,11 @@ export default function transferRepeatableDOM(form, formDef, container, formId) 
       el.setAttribute('data-index', 0);
     }
 
-    // Setup AEM model subscription for non-doc-based forms
     if (!isDocBased) {
-      setupAEMModelSubscription(wrapper, form, formId);
+      setupModelSubscription(wrapper, form, formId);
     }
 
-    // Add remove buttons if there are more instances than minimum
+    // Add remove buttons only if there are more instances than minimum
     const min = parseInt(wrapper.dataset.min || 0, 10);
     if (instances.length > min) {
       // Only difference: checkExisting parameter (true for AEM, false for doc-based)
