@@ -1180,7 +1180,7 @@
           {
             "component": "select",
             "label": "Display Format",
-            "name": "displayFormat",
+            "name": "displayPatternType",
             "valueType": "string",
             "options": [
               {
@@ -1206,8 +1206,26 @@
               {
                 "name": "1/4/2007",
                 "value": "d/M/y"
+              },
+              {
+                "name": "Custom",
+                "value": "custom"
               }
             ]
+          },
+          {
+            "component": "text",
+            "name": "displayFormat",
+            "valueType": "string",
+            "label": "Custom Format",
+            "condition": {
+              "==": [
+                {
+                  "var": "displayPatternType"
+                },
+                "custom"
+              ]
+            }
           }
         ]
       }
@@ -2625,7 +2643,7 @@
           {
             "component": "select",
             "label": "Display Format",
-            "name": "displayFormat",
+            "name": "displayPatternType",
             "valueType": "string",
             "options": [
               {
@@ -2647,8 +2665,26 @@
               {
                 "name": "123,421%",
                 "value": "#,###,##0%"
+              },
+              {
+                "name": "Custom",
+                "value": "custom"
               }
             ]
+          },
+          {
+            "component": "text",
+            "name": "displayFormat",
+            "valueType": "string",
+            "label": "Custom Format",
+            "condition": {
+              "==": [
+                {
+                  "var": "displayPatternType"
+                },
+                "custom"
+              ]
+            }
           }
         ]
       }
