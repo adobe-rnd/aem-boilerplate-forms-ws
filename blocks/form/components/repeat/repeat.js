@@ -4,6 +4,11 @@ import { subscribe } from '../../rules/index.js';
 /* Radio buttons within the same instance should have the same name,
 but different instances should have different group names */
 function updateRadioButtonNames(instance, index) {
+  // Only update if this is actually a repeatable instance inside a repeat wrapper
+  if (!instance.dataset.repeatable || instance.dataset.repeatable !== 'true') {
+    return;
+  }
+  
   instance.querySelectorAll('input[type="radio"]').forEach((radio) => {
     const baseName = radio.name.replace(/-\d+$/, '');
     radio.name = index > 0 ? `${baseName}-${index}` : baseName;
