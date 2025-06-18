@@ -72,7 +72,7 @@
                         {
                             "component": "select",
                             "label": "Display Format",
-                            "name": "displayPatternType",
+                            "name": "displayFormat",
                             "valueType": "string",
                             "options": [
                                 {
@@ -103,13 +103,13 @@
                         },
                         {
                             "component": "text",
-                            "name": "displayFormat",
+                            "name": "fd:customDisplayFormat",
                             "valueType": "string",
                             "label": "Custom Format",
                             "condition": {
                                 "==": [
                                     {
-                                        "var": "displayPatternType"
+                                        "var": "displayFormat"
                                     },
                                     "custom"
                                 ]
