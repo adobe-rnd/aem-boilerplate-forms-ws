@@ -1,6 +1,15 @@
 import { getId } from '../../util.js';
 import { subscribe } from '../../rules/index.js';
 
+/* Radio buttons within the same instance should have the same name,
+but different instances should have different group names */
+function updateRadioButtonNames(instance, index) {
+  instance.querySelectorAll('input[type="radio"]').forEach((radio) => {
+    const baseName = radio.name.replace(/-\d+$/, '');
+    radio.name = index > 0 ? `${baseName}-${index}` : baseName;
+  });
+}
+
 function update(fieldset, index, labelTemplate) {
   const legend = fieldset.querySelector(':scope>.field-label')?.firstChild;
   const text = labelTemplate?.replace('#', index + 1);
@@ -27,6 +36,8 @@ function update(fieldset, index, labelTemplate) {
       }
     });
   }
+  
+  updateRadioButtonNames(fieldset, index);
 }
 
 function createButton(label, icon) {
@@ -138,6 +149,9 @@ function setupModelSubscription(wrapper, form, formId) {
           // We need to wait for the browser's next paint cycle to ensure the new/removed fieldsets
           // are in the DOM before adding/updating buttons.
           requestAnimationFrame(() => {
+            wrapper.querySelectorAll('[data-repeatable="true"]').forEach((instance, index) => {
+              updateRadioButtonNames(instance, index);
+            });
             addRemoveButtons(wrapper, form, false, true);
             updateButtonVisibility(wrapper);
           });
