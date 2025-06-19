@@ -8,7 +8,7 @@ function updateRadioButtonNames(instance, index) {
   if (!instance.dataset.repeatable || instance.dataset.repeatable !== 'true') {
     return;
   }
-  
+
   instance.querySelectorAll('input[type="radio"]').forEach((radio) => {
     const baseName = radio.name.replace(/-\d+$/, '');
     radio.name = index > 0 ? `${baseName}-${index}` : baseName;
@@ -41,7 +41,7 @@ function update(fieldset, index, labelTemplate) {
       }
     });
   }
-  
+
   updateRadioButtonNames(fieldset, index);
 }
 
