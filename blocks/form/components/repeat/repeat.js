@@ -8,7 +8,7 @@ function updateRadioButtonNames(instance, index) {
   if (!instance.dataset.repeatable || instance.dataset.repeatable !== 'true') {
     return;
   }
-  
+
   instance.querySelectorAll('input[type="radio"]').forEach((radio) => {
     const baseName = radio.name.replace(/-\d+$/, '');
     radio.name = index > 0 ? `${baseName}-${index}` : baseName;
@@ -143,7 +143,7 @@ function addRemoveButtons(wrapper, form, isDocBased = false, checkExisting = fal
 
 function setupModelSubscription(wrapper, form, formId) {
   const containerElement = wrapper.closest('fieldset[data-id]');
-  
+
   subscribe(containerElement, formId, (fieldDiv, fieldModel) => {
     wrapper.fieldModel = fieldModel;
     fieldModel.subscribe((e) => {
@@ -228,7 +228,7 @@ export default function transferRepeatableDOM(form, formDef, container, formId) 
   form.querySelectorAll('[data-repeatable="true"][data-index="0"]').forEach((el) => {
     const instances = getInstances(el);
     const isDocBased = form.dataset.source !== 'aem';
-    
+
     const wrapper = document.createElement('div');
     wrapper.dataset.min = el.dataset.min || 0;
     wrapper.dataset.max = el.dataset.max;
