@@ -255,7 +255,6 @@ function decoratePanelContainer(panelDefinition, panelContainer) {
             panelContainer.insertAdjacentElement('afterbegin', repeatActions);
           }
         }
-        
         const addButton = createRepeatButton('Add', 'add');
         repeatActions.appendChild(addButton);
       }
