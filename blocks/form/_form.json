@@ -216,6 +216,12 @@
         "wizard",
         "range"
       ]
+    },
+    {
+      "id": "custom-components",
+      "components": [
+        "custom-components"
+      ]
     }
   ]
 }
