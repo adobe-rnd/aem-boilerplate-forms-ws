@@ -94,7 +94,7 @@ function addAFBasedInstance(wrapper) {
   }
 }
 
-function removeDocBasedInstance(fieldset, wrapper, form) {
+function removeDocBasedInstance(fieldset, wrapper) {
   fieldset.remove();
   wrapper.querySelectorAll('[data-repeatable="true"]').forEach((el, index) => {
     update(el, index, wrapper['#repeat-template-label']);
