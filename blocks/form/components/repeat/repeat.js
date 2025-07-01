@@ -72,39 +72,30 @@ function updateButtonVisibility(wrapper) {
 
   const removeButtons = wrapper.querySelectorAll('.item-remove');
   removeButtons.forEach((btn) => {
-    if (count <= min) {
-      btn.style.display = 'none';
-    } else {
-      btn.style.display = '';
-    }
+    btn.style.display = count <= min ? 'none' : '';
   });
 }
 
-function removeInstanceViaModel(wrapper, instanceIndex) {
+function removeAFBasedInstance(wrapper, instanceIndex) {
   if (wrapper.fieldModel) {
     const action = { type: 'removeInstance', payload: instanceIndex };
     wrapper.fieldModel.removeItem(action);
   }
 }
 
-function addInstanceViaModel(wrapper) {
+function addAFBasedInstance(wrapper) {
   if (wrapper.fieldModel) {
     const action = { type: 'addInstance', payload: wrapper.fieldModel.items?.length || 0 };
     wrapper.fieldModel.addItem(action);
   }
 }
 
-function removeInstanceManually(fieldset, wrapper, form) {
+function removeDocBasedInstance(fieldset, wrapper, form) {
   fieldset.remove();
   wrapper.querySelectorAll('[data-repeatable="true"]').forEach((el, index) => {
     update(el, index, wrapper['#repeat-template-label']);
   });
   updateButtonVisibility(wrapper);
-  const event = new CustomEvent('item:remove', {
-    detail: { item: { name: fieldset.name, id: fieldset.id } },
-    bubbles: false,
-  });
-  form.dispatchEvent(event);
 }
 
 function insertRemoveButton(fieldset, wrapper, form, isDocBased = false) {
@@ -117,9 +108,9 @@ function insertRemoveButton(fieldset, wrapper, form, isDocBased = false) {
     const currentIndex = Array.from(allInstances).indexOf(fieldset);
 
     if (isDocBased) {
-      removeInstanceManually(fieldset, wrapper, form);
+      removeDocBasedInstance(fieldset, wrapper, form);
     } else {
-      removeInstanceViaModel(wrapper, currentIndex);
+      removeAFBasedInstance(wrapper, currentIndex);
     }
   });
 
@@ -168,7 +159,7 @@ function setupModelSubscription(wrapper, form, formId) {
 }
 
 // Doc-based manual DOM manipulation (exception case)
-function addInstanceManually(wrapper, form) {
+function addDocBasedInstance(wrapper, form) {
   const fieldset = wrapper['#repeat-template'];
   const childCount = wrapper.children.length - 1;
   const newFieldset = fieldset.cloneNode(true);
@@ -196,9 +187,9 @@ function addInstanceManually(wrapper, form) {
 
 function addInstance(wrapper, form, isDocBased = false) {
   if (isDocBased) {
-    addInstanceManually(wrapper, form);
+    addDocBasedInstance(wrapper, form);
   } else {
-    addInstanceViaModel(wrapper);
+    addAFBasedInstance(wrapper);
   }
 }
 
