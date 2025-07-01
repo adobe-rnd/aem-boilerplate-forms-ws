@@ -11,7 +11,11 @@ function updateRadioButtonNames(instance, index) {
 
   instance.querySelectorAll('input[type="radio"]').forEach((radio) => {
     const baseName = radio.name.replace(/-\d+$/, '');
-    radio.name = index > 0 ? `${baseName}-${index}` : baseName;
+    const expectedName = index > 0 ? `${baseName}-${index}` : baseName;
+
+    if (radio.name !== expectedName) {
+      radio.name = expectedName;
+    }
   });
 }
 
