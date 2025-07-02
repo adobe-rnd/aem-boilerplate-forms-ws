@@ -220,7 +220,7 @@
     {
       "id": "custom-components",
       "components": [
-        "custom-radio"
+        "icon-radio-group"
       ]
     }
   ]
