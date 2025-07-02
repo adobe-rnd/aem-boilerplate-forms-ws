@@ -229,7 +229,7 @@ export default function transferRepeatableDOM(form, formDef, container, formId) 
     wrapper.dataset.max = el.dataset.max;
     wrapper.dataset.variant = el.dataset.variant || 'addDeleteButtons';
     wrapper.dataset.repeatAddButtonLabel = el.dataset?.repeatAddButtonLabel ? el.dataset.repeatAddButtonLabel : 'Add';
-    wrapper.dataset.repeatDeleteButtonLabel = el.dataset?.repeatDeleteButtonLabel ? el.dataset.repeatDeleteButtonLabel : 'Remove';
+    wrapper.dataset.repeatDeleteButtonLabel = el.dataset?.repeatDeleteButtonLabel ? el.dataset.repeatDeleteButtonLabel : 'Delete';
     wrapper.className = 'repeat-wrapper';
 
     el.insertAdjacentElement('beforebegin', wrapper);
