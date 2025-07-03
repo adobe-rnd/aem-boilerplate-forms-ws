@@ -1,6 +1,5 @@
-import { test, expect } from '../fixtures.js';
-import {openPage} from '../utils.js';
-import {testRepeatablePanel} from '../x-walk/repeat.spec.js';
+import { test } from '../fixtures.js';
+import {openPage, testRepeatablePanel} from '../utils.js';
 
 const panelLocator = 'fieldset[class*="panel-wrapper field-panel-1 field-wrapper"]';
 test.describe('Repeatability test in Doc-based forms', () => {
