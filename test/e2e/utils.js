@@ -26,7 +26,7 @@ export async function testRepeatablePanel(page, panelLocator) {
     await expect(panel.nth(i)).toBeVisible();
   }
   await expect(addButton).toBeHidden();
-  await expect(deleteButtons).toHaveCount(1);
+  await expect(deleteButtons).toHaveCount(2);
   await expect(deleteButtons.last()).toBeVisible();
   await deleteButtons.last().click();
   await expect(addButton).toBeVisible();
