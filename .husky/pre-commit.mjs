@@ -15,6 +15,7 @@ const modifiedFiles = changeset.split('\n').filter(Boolean);
 /* Optional: Run linting before committing
 const lintSpinner = createSpinner('Running linting...');
 try {
+  console.log('🔄 Running linting...');
   await run('npm run lint');
   lintSpinner.stop('✅ Linting passed - no issues found');
 } catch (error) {
