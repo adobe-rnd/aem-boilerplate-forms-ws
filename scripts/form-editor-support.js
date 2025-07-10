@@ -206,7 +206,8 @@ async function renderFormBlock(form, editMode) {
   const block = form.closest('.block[data-aue-resource]');
   if ((editMode && !block.classList.contains('edit-mode')) || !editMode) {
     block.classList.toggle('edit-mode', editMode);
-    const formDefResp = await fetch(`${form.dataset.formpath}.model.json`);
+    const formpath = form.dataset.aueResource.split('urn:aemconnection:')[1];
+    const formDefResp = await fetch(`${formpath}.model.json`);
     const formDef = await formDefResp.json();
     const div = form.parentElement;
     div.replaceChildren();
