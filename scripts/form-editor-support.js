@@ -329,7 +329,7 @@ export function attachEventListners(main) {
 
   document.body.addEventListener('aue:ui-preview', () => {
     window.currentMode = 'preview';
-    const forms = document.querySelectorAll('form');
+    const forms = document.querySelectorAll('.form');
     forms.forEach(async (form) => {
       await renderFormBlock(form, false);
     });
@@ -337,7 +337,7 @@ export function attachEventListners(main) {
 
   const ueEditModeHandler = () => {
     window.currentMode = 'edit';
-    const forms = document.querySelectorAll('form');
+    const forms = document.querySelectorAll('.form');
     annotateFormsForEditing(forms);
   };
 
