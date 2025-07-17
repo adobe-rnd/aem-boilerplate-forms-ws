@@ -1221,7 +1221,7 @@
             "condition": {
               "==": [
                 {
-                  "var": "displayFormat"
+                  "var": "formats|displayFormat"
                 },
                 "custom"
               ]
@@ -2680,7 +2680,7 @@
             "condition": {
               "==": [
                 {
-                  "var": "displayFormat"
+                  "var": "formats|displayFormat"
                 },
                 "custom"
               ]

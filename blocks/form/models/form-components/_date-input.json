@@ -97,7 +97,7 @@
                             "condition": {
                                 "==": [
                                     {
-                                        "var": "displayFormat"
+                                        "var": "formats|displayFormat"
                                     },
                                     "custom"
                                 ]
