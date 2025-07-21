@@ -3,7 +3,8 @@ import { subscribe } from '../../rules/index.js';
 
 /**
  * Updates radio button names to ensure proper grouping within repeatable instances.
- * Radio buttons in the same instance share the same name, but different instances have different group names.
+ * Radio buttons in the same instance share the same name,
+ * but different instances have different group names.
  * @param {HTMLElement} instance - The repeatable instance element
  * @param {number} index - The index of the instance
  */
@@ -159,13 +160,16 @@ const repeatStrategies = {
           payload?.changes?.forEach((change) => {
             if (change?.propertyName === 'items') {
               // eslint-disable-next-line max-len
-              // Reason for requestAnimationFrame: Model changes fire immediately but DOM updates are async.
-              // We need to wait for the browser's next paint cycle to ensure the new/removed fieldsets
+              // Reason for requestAnimationFrame: Model changes fire immediately but
+              // DOM updates are async.
+              // We need to wait for the browser's next paint cycle
+              // to ensure the new/removed fieldsets
               // are in the DOM before adding/updating buttons.
               requestAnimationFrame(() => {
                 wrapper.querySelectorAll('[data-repeatable="true"]').forEach((instance, index) => {
                   updateRadioButtonNames(instance, index);
                 });
+                // eslint-disable-next-line no-use-before-define
                 addRemoveButtons(wrapper, form, false);
                 updateButtonVisibility(wrapper);
               });
@@ -173,7 +177,7 @@ const repeatStrategies = {
           });
         }, 'change');
       });
-    }
+    },
   },
 
   doc: {
@@ -193,10 +197,12 @@ const repeatStrategies = {
       actions.insertAdjacentElement('beforebegin', newFieldset);
 
       // Add remove button to the new instance
+      // eslint-disable-next-line no-use-before-define
       insertRemoveButton(newFieldset, wrapper, form, true);
 
       // Add remove buttons to all existing instances that don't have them
       // (this handles the case where we started with min instances and no buttons)
+      // eslint-disable-next-line no-use-before-define
       addRemoveButtons(wrapper, form, true);
 
       updateButtonVisibility(wrapper);
@@ -214,7 +220,7 @@ const repeatStrategies = {
      * @param {HTMLElement} wrapper - The repeat wrapper element
      * @param {HTMLElement} form - The form element
      */
-    removeInstance: (fieldset, wrapper, form) => {
+    removeInstance: (fieldset, wrapper) => {
       fieldset.remove();
       wrapper.querySelectorAll('[data-repeatable="true"]').forEach((el, index) => {
         update(el, index, wrapper['#repeat-template-label']);
@@ -227,8 +233,8 @@ const repeatStrategies = {
      */
     setup: () => {
       // No setup required for doc-based forms
-    }
-  }
+    },
+  },
 };
 
 /**
@@ -307,7 +313,8 @@ export function insertAddButton(wrapper, form, isDocBased = false) {
 }
 
 /**
- * Transforms repeatable DOM elements into a structured repeat wrapper with add/remove functionality.
+ * Transforms repeatable DOM elements into a structured repeat wrapper
+ * with add/remove functionality.
  * This is the main entry point for setting up repeatable form sections.
  * @param {HTMLElement} form - The form element
  * @param {Object} formDef - The form definition
