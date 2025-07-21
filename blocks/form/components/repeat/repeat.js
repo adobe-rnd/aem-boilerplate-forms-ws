@@ -101,40 +101,135 @@ function updateButtonVisibility(wrapper) {
 }
 
 /**
- * Removes an instance using the Adaptive Forms model.
- * @param {HTMLElement} wrapper - The repeat wrapper element
- * @param {number} instanceIndex - The index of the instance to remove
+ * Gets all sibling instances of a repeatable element.
+ * @param {HTMLElement} el - The starting element
+ * @returns {HTMLElement[]} Array of sibling instances
  */
-function removeAFBasedInstance(wrapper, instanceIndex) {
-  if (wrapper.fieldModel) {
-    const action = { type: 'removeInstance', payload: instanceIndex };
-    wrapper.fieldModel.removeItem(action);
+function getInstances(el) {
+  let nextSibling = el.nextElementSibling;
+  const siblings = [el];
+  while (nextSibling && nextSibling.matches('[data-repeatable="true"]:not([data-repeatable="0"])')) {
+    siblings.push(nextSibling);
+    nextSibling = nextSibling.nextElementSibling;
   }
+  return siblings;
 }
 
 /**
- * Adds a new instance using the Adaptive Forms model.
- * @param {HTMLElement} wrapper - The repeat wrapper element
+ * Strategy pattern for handling different form types (AF based and document based)
  */
-function addAFBasedInstance(wrapper) {
-  if (wrapper.fieldModel) {
-    const action = { type: 'addInstance', payload: wrapper.fieldModel.items?.length || 0 };
-    wrapper.fieldModel.addItem(action);
-  }
-}
+const repeatStrategies = {
+  af: {
+    /**
+     * Adds a new instance using the Adaptive Forms model.
+     * @param {HTMLElement} wrapper - The repeat wrapper element
+     */
+    addInstance: (wrapper) => {
+      if (wrapper.fieldModel) {
+        const action = { type: 'addInstance', payload: wrapper.fieldModel.items?.length || 0 };
+        wrapper.fieldModel.addItem(action);
+      }
+    },
 
-/**
- * Removes an instance using direct DOM manipulation (document-based forms).
- * @param {HTMLElement} fieldset - The fieldset to remove
- * @param {HTMLElement} wrapper - The repeat wrapper element
- */
-function removeDocBasedInstance(fieldset, wrapper) {
-  fieldset.remove();
-  wrapper.querySelectorAll('[data-repeatable="true"]').forEach((el, index) => {
-    update(el, index, wrapper['#repeat-template-label']);
-  });
-  updateButtonVisibility(wrapper);
-}
+    /**
+     * Removes an instance using the Adaptive Forms model.
+     * @param {HTMLElement} wrapper - The repeat wrapper element
+     * @param {number} instanceIndex - The index of the instance to remove
+     */
+    removeInstance: (wrapper, instanceIndex) => {
+      if (wrapper.fieldModel) {
+        const action = { type: 'removeInstance', payload: instanceIndex };
+        wrapper.fieldModel.removeItem(action);
+      }
+    },
+
+    /**
+     * Sets up model subscription for Adaptive Forms to handle dynamic instance changes.
+     * @param {HTMLElement} wrapper - The repeat wrapper element
+     * @param {HTMLElement} form - The form element
+     * @param {string} formId - The form ID
+     */
+    setup: (wrapper, form, formId) => {
+      const containerElement = wrapper.closest('fieldset[data-id]');
+
+      subscribe(containerElement, formId, (fieldDiv, fieldModel) => {
+        wrapper.fieldModel = fieldModel;
+        fieldModel.subscribe((e) => {
+          const { payload } = e;
+          payload?.changes?.forEach((change) => {
+            if (change?.propertyName === 'items') {
+              // eslint-disable-next-line max-len
+              // Reason for requestAnimationFrame: Model changes fire immediately but DOM updates are async.
+              // We need to wait for the browser's next paint cycle to ensure the new/removed fieldsets
+              // are in the DOM before adding/updating buttons.
+              requestAnimationFrame(() => {
+                wrapper.querySelectorAll('[data-repeatable="true"]').forEach((instance, index) => {
+                  updateRadioButtonNames(instance, index);
+                });
+                addRemoveButtons(wrapper, form, false);
+                updateButtonVisibility(wrapper);
+              });
+            }
+          });
+        }, 'change');
+      });
+    }
+  },
+
+  doc: {
+    /**
+     * Adds a new instance using direct DOM manipulation (document-based forms).
+     * @param {HTMLElement} wrapper - The repeat wrapper element
+     * @param {HTMLElement} form - The form element
+     */
+    addInstance: (wrapper, form) => {
+      const fieldset = wrapper['#repeat-template'];
+      const childCount = wrapper.children.length - 1;
+      const newFieldset = fieldset.cloneNode(true);
+      newFieldset.setAttribute('data-index', childCount);
+      update(newFieldset, childCount, wrapper['#repeat-template-label']);
+
+      const actions = wrapper.querySelector('.repeat-actions');
+      actions.insertAdjacentElement('beforebegin', newFieldset);
+
+      // Add remove button to the new instance
+      insertRemoveButton(newFieldset, wrapper, form, true);
+
+      // Add remove buttons to all existing instances that don't have them
+      // (this handles the case where we started with min instances and no buttons)
+      addRemoveButtons(wrapper, form, true);
+
+      updateButtonVisibility(wrapper);
+
+      const event = new CustomEvent('item:add', {
+        detail: { item: { name: newFieldset.name, id: newFieldset.id } },
+        bubbles: false,
+      });
+      form.dispatchEvent(event);
+    },
+
+    /**
+     * Removes an instance using direct DOM manipulation (document-based forms).
+     * @param {HTMLElement} fieldset - The fieldset to remove
+     * @param {HTMLElement} wrapper - The repeat wrapper element
+     * @param {HTMLElement} form - The form element
+     */
+    removeInstance: (fieldset, wrapper, form) => {
+      fieldset.remove();
+      wrapper.querySelectorAll('[data-repeatable="true"]').forEach((el, index) => {
+        update(el, index, wrapper['#repeat-template-label']);
+      });
+      updateButtonVisibility(wrapper);
+    },
+
+    /**
+     * No setup needed for document-based forms.
+     */
+    setup: () => {
+      // No setup required for doc-based forms
+    }
+  }
+};
 
 /**
  * Inserts a remove button into a fieldset instance.
@@ -152,10 +247,11 @@ function insertRemoveButton(fieldset, wrapper, form, isDocBased = false) {
     const allInstances = repeatWrapper.querySelectorAll('[data-repeatable="true"]');
     const currentIndex = Array.from(allInstances).indexOf(fieldset);
 
+    const repeatHandler = repeatStrategies[isDocBased ? 'doc' : 'af'];
     if (isDocBased) {
-      removeDocBasedInstance(fieldset, wrapper, form);
+      repeatHandler.removeInstance(fieldset, wrapper, form);
     } else {
-      removeAFBasedInstance(wrapper, currentIndex);
+      repeatHandler.removeInstance(wrapper, currentIndex);
     }
   });
 
@@ -182,95 +278,14 @@ function addRemoveButtons(wrapper, form, isDocBased = false) {
 }
 
 /**
- * Sets up model subscription for Adaptive Forms to handle dynamic instance changes.
- * @param {HTMLElement} wrapper - The repeat wrapper element
- * @param {HTMLElement} form - The form element
- * @param {string} formId - The form ID
- */
-function setupModelSubscription(wrapper, form, formId) {
-  const containerElement = wrapper.closest('fieldset[data-id]');
-
-  subscribe(containerElement, formId, (fieldDiv, fieldModel) => {
-    wrapper.fieldModel = fieldModel;
-    fieldModel.subscribe((e) => {
-      const { payload } = e;
-      payload?.changes?.forEach((change) => {
-        if (change?.propertyName === 'items') {
-          // eslint-disable-next-line max-len
-          // Reason for requestAnimationFrame: Model changes fire immediately but DOM updates are async.
-          // We need to wait for the browser's next paint cycle to ensure the new/removed fieldsets
-          // are in the DOM before adding/updating buttons.
-          requestAnimationFrame(() => {
-            wrapper.querySelectorAll('[data-repeatable="true"]').forEach((instance, index) => {
-              updateRadioButtonNames(instance, index);
-            });
-            addRemoveButtons(wrapper, form, false);
-            updateButtonVisibility(wrapper);
-          });
-        }
-      });
-    }, 'change');
-  });
-}
-
-/**
- * Adds a new instance using direct DOM manipulation (document-based forms).
- * @param {HTMLElement} wrapper - The repeat wrapper element
- * @param {HTMLElement} form - The form element
- */
-function addDocBasedInstance(wrapper, form) {
-  const fieldset = wrapper['#repeat-template'];
-  const childCount = wrapper.children.length - 1;
-  const newFieldset = fieldset.cloneNode(true);
-  newFieldset.setAttribute('data-index', childCount);
-  update(newFieldset, childCount, wrapper['#repeat-template-label']);
-
-  const actions = wrapper.querySelector('.repeat-actions');
-  actions.insertAdjacentElement('beforebegin', newFieldset);
-
-  // Add remove button to the new instance
-  insertRemoveButton(newFieldset, wrapper, form, true);
-
-  // Add remove buttons to all existing instances that don't have them
-  // (this handles the case where we started with min instances and no buttons)
-  addRemoveButtons(wrapper, form, true);
-
-  updateButtonVisibility(wrapper);
-
-  const event = new CustomEvent('item:add', {
-    detail: { item: { name: newFieldset.name, id: newFieldset.id } },
-    bubbles: false,
-  });
-  form.dispatchEvent(event);
-}
-
-/**
- * Adds a new instance using the appropriate method (AF-based or doc-based).
+ * Adds a new instance using the appropriate strategy.
  * @param {HTMLElement} wrapper - The repeat wrapper element
  * @param {HTMLElement} form - The form element
  * @param {boolean} isDocBased - Whether this is a document-based form
  */
 function addInstance(wrapper, form, isDocBased = false) {
-  if (isDocBased) {
-    addDocBasedInstance(wrapper, form);
-  } else {
-    addAFBasedInstance(wrapper);
-  }
-}
-
-/**
- * Gets all sibling instances of a repeatable element.
- * @param {HTMLElement} el - The starting element
- * @returns {HTMLElement[]} Array of sibling instances
- */
-function getInstances(el) {
-  let nextSibling = el.nextElementSibling;
-  const siblings = [el];
-  while (nextSibling && nextSibling.matches('[data-repeatable="true"]:not([data-repeatable="0"])')) {
-    siblings.push(nextSibling);
-    nextSibling = nextSibling.nextElementSibling;
-  }
-  return siblings;
+  const repeatHandler = repeatStrategies[isDocBased ? 'doc' : 'af'];
+  repeatHandler.addInstance(wrapper, form);
 }
 
 /**
@@ -330,9 +345,9 @@ export default function transferRepeatableDOM(form, formDef, container, formId) 
       el.setAttribute('data-index', 0);
     }
 
-    if (!isDocBased) {
-      setupModelSubscription(wrapper, form, formId);
-    }
+    // Setup form-specific logic using strategy pattern
+    const repeatHandler = repeatStrategies[isDocBased ? 'doc' : 'af'];
+    repeatHandler.setup(wrapper, form, formId);
 
     // Update radio button names for both AEM and doc-based forms
     wrapper.querySelectorAll('[data-repeatable="true"]').forEach((instance, index) => {
