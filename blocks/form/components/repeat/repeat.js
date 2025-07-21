@@ -1,8 +1,12 @@
 import { getId } from '../../util.js';
 import { subscribe } from '../../rules/index.js';
 
-/* Radio buttons within the same instance should have the same name,
-but different instances should have different group names */
+/**
+ * Updates radio button names to ensure proper grouping within repeatable instances.
+ * Radio buttons in the same instance share the same name, but different instances have different group names.
+ * @param {HTMLElement} instance - The repeatable instance element
+ * @param {number} index - The index of the instance
+ */
 function updateRadioButtonNames(instance, index) {
   // Only update if this is actually a repeatable instance
   if (!instance.dataset.repeatable || instance.dataset.repeatable !== 'true') {
@@ -19,6 +23,12 @@ function updateRadioButtonNames(instance, index) {
   });
 }
 
+/**
+ * Updates a fieldset instance with proper IDs, labels, and radio button names.
+ * @param {HTMLElement} fieldset - The fieldset element to update
+ * @param {number} index - The index of the instance
+ * @param {string} labelTemplate - Template for the label text (uses '#' as placeholder)
+ */
 function update(fieldset, index, labelTemplate) {
   const legend = fieldset.querySelector(':scope>.field-label')?.firstChild;
   const text = labelTemplate?.replace('#', index + 1);
@@ -49,6 +59,12 @@ function update(fieldset, index, labelTemplate) {
   updateRadioButtonNames(fieldset, index);
 }
 
+/**
+ * Creates a button element with specified label and icon class.
+ * @param {string} label - The button text
+ * @param {string} icon - The icon class name (add/remove)
+ * @returns {HTMLButtonElement} The created button element
+ */
 function createButton(label, icon) {
   const button = document.createElement('button');
   button.className = `item-${icon}`;
@@ -59,6 +75,10 @@ function createButton(label, icon) {
   return button;
 }
 
+/**
+ * Updates the visibility of add/remove buttons based on min/max constraints.
+ * @param {HTMLElement} wrapper - The repeat wrapper element
+ */
 function updateButtonVisibility(wrapper) {
   const instances = wrapper.querySelectorAll('[data-repeatable="true"]');
   const count = instances.length;
@@ -80,6 +100,11 @@ function updateButtonVisibility(wrapper) {
   });
 }
 
+/**
+ * Removes an instance using the Adaptive Forms model.
+ * @param {HTMLElement} wrapper - The repeat wrapper element
+ * @param {number} instanceIndex - The index of the instance to remove
+ */
 function removeAFBasedInstance(wrapper, instanceIndex) {
   if (wrapper.fieldModel) {
     const action = { type: 'removeInstance', payload: instanceIndex };
@@ -87,6 +112,10 @@ function removeAFBasedInstance(wrapper, instanceIndex) {
   }
 }
 
+/**
+ * Adds a new instance using the Adaptive Forms model.
+ * @param {HTMLElement} wrapper - The repeat wrapper element
+ */
 function addAFBasedInstance(wrapper) {
   if (wrapper.fieldModel) {
     const action = { type: 'addInstance', payload: wrapper.fieldModel.items?.length || 0 };
@@ -94,6 +123,11 @@ function addAFBasedInstance(wrapper) {
   }
 }
 
+/**
+ * Removes an instance using direct DOM manipulation (document-based forms).
+ * @param {HTMLElement} fieldset - The fieldset to remove
+ * @param {HTMLElement} wrapper - The repeat wrapper element
+ */
 function removeDocBasedInstance(fieldset, wrapper) {
   fieldset.remove();
   wrapper.querySelectorAll('[data-repeatable="true"]').forEach((el, index) => {
@@ -102,6 +136,13 @@ function removeDocBasedInstance(fieldset, wrapper) {
   updateButtonVisibility(wrapper);
 }
 
+/**
+ * Inserts a remove button into a fieldset instance.
+ * @param {HTMLElement} fieldset - The fieldset to add the button to
+ * @param {HTMLElement} wrapper - The repeat wrapper element
+ * @param {HTMLElement} form - The form element
+ * @param {boolean} isDocBased - Whether this is a document-based form
+ */
 function insertRemoveButton(fieldset, wrapper, form, isDocBased = false) {
   const label = wrapper.dataset?.repeatDeleteButtonLabel || fieldset.dataset?.repeatDeleteButtonLabel || 'Delete';
   const removeButton = createButton(label, 'remove');
@@ -121,21 +162,31 @@ function insertRemoveButton(fieldset, wrapper, form, isDocBased = false) {
   fieldset.append(removeButton);
 }
 
-function addRemoveButtons(wrapper, form, isDocBased = false, checkExisting = false) {
+/**
+ * Adds remove buttons to instances that don't already have them.
+ * @param {HTMLElement} wrapper - The repeat wrapper element
+ * @param {HTMLElement} form - The form element
+ * @param {boolean} isDocBased - Whether this is a document-based form
+ */
+function addRemoveButtons(wrapper, form, isDocBased = false) {
   const instances = wrapper.querySelectorAll('[data-repeatable="true"]');
 
   instances.forEach((instance) => {
-    if (checkExisting) {
-      const existingRemoveButton = instance.querySelector('.item-remove');
-      if (existingRemoveButton) {
-        return;
-      }
+    const existingRemoveButton = instance.querySelector('.item-remove');
+    if (existingRemoveButton) {
+      return; // Skip instances that already have remove buttons
     }
 
     insertRemoveButton(instance, wrapper, form, isDocBased);
   });
 }
 
+/**
+ * Sets up model subscription for Adaptive Forms to handle dynamic instance changes.
+ * @param {HTMLElement} wrapper - The repeat wrapper element
+ * @param {HTMLElement} form - The form element
+ * @param {string} formId - The form ID
+ */
 function setupModelSubscription(wrapper, form, formId) {
   const containerElement = wrapper.closest('fieldset[data-id]');
 
@@ -153,7 +204,7 @@ function setupModelSubscription(wrapper, form, formId) {
             wrapper.querySelectorAll('[data-repeatable="true"]').forEach((instance, index) => {
               updateRadioButtonNames(instance, index);
             });
-            addRemoveButtons(wrapper, form, false, true);
+            addRemoveButtons(wrapper, form, false);
             updateButtonVisibility(wrapper);
           });
         }
@@ -162,7 +213,11 @@ function setupModelSubscription(wrapper, form, formId) {
   });
 }
 
-// Doc-based manual DOM manipulation (exception case)
+/**
+ * Adds a new instance using direct DOM manipulation (document-based forms).
+ * @param {HTMLElement} wrapper - The repeat wrapper element
+ * @param {HTMLElement} form - The form element
+ */
 function addDocBasedInstance(wrapper, form) {
   const fieldset = wrapper['#repeat-template'];
   const childCount = wrapper.children.length - 1;
@@ -178,7 +233,7 @@ function addDocBasedInstance(wrapper, form) {
 
   // Add remove buttons to all existing instances that don't have them
   // (this handles the case where we started with min instances and no buttons)
-  addRemoveButtons(wrapper, form, true, true);
+  addRemoveButtons(wrapper, form, true);
 
   updateButtonVisibility(wrapper);
 
@@ -189,6 +244,12 @@ function addDocBasedInstance(wrapper, form) {
   form.dispatchEvent(event);
 }
 
+/**
+ * Adds a new instance using the appropriate method (AF-based or doc-based).
+ * @param {HTMLElement} wrapper - The repeat wrapper element
+ * @param {HTMLElement} form - The form element
+ * @param {boolean} isDocBased - Whether this is a document-based form
+ */
 function addInstance(wrapper, form, isDocBased = false) {
   if (isDocBased) {
     addDocBasedInstance(wrapper, form);
@@ -197,6 +258,11 @@ function addInstance(wrapper, form, isDocBased = false) {
   }
 }
 
+/**
+ * Gets all sibling instances of a repeatable element.
+ * @param {HTMLElement} el - The starting element
+ * @returns {HTMLElement[]} Array of sibling instances
+ */
 function getInstances(el) {
   let nextSibling = el.nextElementSibling;
   const siblings = [el];
@@ -207,6 +273,12 @@ function getInstances(el) {
   return siblings;
 }
 
+/**
+ * Inserts an add button into the repeat wrapper.
+ * @param {HTMLElement} wrapper - The repeat wrapper element
+ * @param {HTMLElement} form - The form element
+ * @param {boolean} isDocBased - Whether this is a document-based form
+ */
 export function insertAddButton(wrapper, form, isDocBased = false) {
   const actions = document.createElement('div');
   actions.className = 'repeat-actions';
@@ -219,6 +291,14 @@ export function insertAddButton(wrapper, form, isDocBased = false) {
   wrapper.append(actions);
 }
 
+/**
+ * Transforms repeatable DOM elements into a structured repeat wrapper with add/remove functionality.
+ * This is the main entry point for setting up repeatable form sections.
+ * @param {HTMLElement} form - The form element
+ * @param {Object} formDef - The form definition
+ * @param {HTMLElement} container - The container element
+ * @param {string} formId - The form ID
+ */
 export default function transferRepeatableDOM(form, formDef, container, formId) {
   form.querySelectorAll('[data-repeatable="true"][data-index="0"]').forEach((el) => {
     const instances = getInstances(el);
@@ -252,16 +332,17 @@ export default function transferRepeatableDOM(form, formDef, container, formId) 
 
     if (!isDocBased) {
       setupModelSubscription(wrapper, form, formId);
-      wrapper.querySelectorAll('[data-repeatable="true"]').forEach((instance, index) => {
-        updateRadioButtonNames(instance, index);
-      });
     }
+
+    // Update radio button names for both AEM and doc-based forms
+    wrapper.querySelectorAll('[data-repeatable="true"]').forEach((instance, index) => {
+      updateRadioButtonNames(instance, index);
+    });
 
     // Add remove buttons only if there are more instances than minimum
     const min = parseInt(wrapper.dataset.min || 0, 10);
     if (instances.length > min) {
-      // Only difference: checkExisting parameter (true for AEM, false for doc-based)
-      addRemoveButtons(wrapper, form, isDocBased, !isDocBased);
+      addRemoveButtons(wrapper, form, isDocBased);
     }
 
     if (el.dataset.variant !== 'noButtons') {
