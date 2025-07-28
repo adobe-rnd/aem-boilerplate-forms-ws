@@ -25,18 +25,28 @@ let customFunctionRegistered = false;
 export default class RuleEngine {
   rulesOrder = {};
 
+  fieldChanges = [];
+
   constructor(formDef) {
     this.form = createFormInstance(formDef);
+    this.form.subscribe((e) => {
+      const { payload } = e;
+      this.fieldChanges.push(payload);
+    }, 'fieldChanged');
   }
 
   getState() {
     return this.form.getState(true);
   }
+
+  getFieldChanges() {
+    return this.fieldChanges;
+  }
 }
 
 let ruleEngine;
-onmessage = (e) => {
-  function handleMessageEvent(event) {
+onmessage = async (e) => {
+  async function handleMessageEvent(event) {
     switch (event.data.name) {
       case 'init':
         ruleEngine = new RuleEngine(event.data.payload);
@@ -53,6 +63,20 @@ onmessage = (e) => {
       default:
         break;
     }
+  }
+
+  if (e.data.name === 'decorated') {
+    await ruleEngine.form.waitForPromises();
+    postMessage({
+      name: 'restore',
+      payload: ruleEngine.getState(),
+    });
+    ruleEngine.getFieldChanges().forEach((changes) => {
+      postMessage({
+        name: 'fieldChanged',
+        payload: changes,
+      });
+    });
   }
 
   if (!customFunctionRegistered) {

@@ -28,7 +28,6 @@ import {
 } from '../util.js';
 import registerCustomFunctions from './functionRegistration.js';
 import { externalize } from './functions.js';
-import initializeRuleEngineWorker from './worker.js';
 import { createOptimizedPicture } from '../../../scripts/aem.js';
 
 const formSubscriptions = {};
@@ -338,14 +337,54 @@ async function fetchData({ id }) {
   }
 }
 
+async function initializeRuleEngineWorker(formDef, renderHTMLForm) {
+  if (typeof Worker === 'undefined') {
+    const ruleEngine = await import('./model/afb-runtime.js');
+    const form = ruleEngine.createFormInstance(formDef);
+    return renderHTMLForm(form.getState(true), formDef.data);
+  }
+  const myWorker = new Worker(`${window.hlx.codeBasePath}/blocks/form/rules/RuleEngineWorker.js`, { type: 'module' });
+
+  myWorker.postMessage({
+    name: 'init',
+    payload: formDef,
+  });
+
+  return new Promise((resolve) => {
+    let form; let captcha; let data; let generateFormRendition;
+    myWorker.addEventListener('message', async (e) => {
+      if (e.data.name === 'init') {
+        const response = await renderHTMLForm(e.data.payload);
+        form = response.form;
+        captcha = response.captcha;
+        data = response.data;
+        generateFormRendition = response.generateFormRendition;
+        myWorker.postMessage({
+          name: 'decorated',
+        }); // informing the worker that html form rendition is complete
+        // myWorker.terminate();
+        resolve(response);
+      }
+
+      if (e.data.name === 'restore') {
+        loadRuleEngine(e.data.payload, form, captcha, generateFormRendition, data);
+      }
+
+      if (e.data.name === 'fieldChanged') {
+        await fieldChanged(e.data.payload, form, generateFormRendition);
+      }
+    });
+  });
+}
+
 export async function initAdaptiveForm(formDef, createForm) {
   const data = await fetchData(formDef);
   await registerCustomFunctions();
-  const form = await initializeRuleEngineWorker({
+  const response = await initializeRuleEngineWorker({
     ...formDef,
     data,
   }, createForm);
-  return form;
+  return response?.form;
 }
 
 /**
