@@ -25,9 +25,10 @@ import {
   getCheckboxGroupValue,
   createDropdownUsingEnum,
   createRadioOrCheckboxUsingEnum,
+  fetchData,
 } from '../util.js';
 import registerCustomFunctions from './functionRegistration.js';
-import { externalize } from './functions.js';
+
 import { createOptimizedPicture } from '../../../scripts/aem.js';
 
 const formSubscriptions = {};
@@ -323,31 +324,20 @@ export async function loadRuleEngine(formDef, htmlForm, captcha, genFormRenditio
   applyRuleEngine(htmlForm, form, captcha);
 }
 
-async function fetchData({ id }) {
-  try {
-    const { search = '' } = window.location;
-    const url = externalize(`/adobe/forms/af/data/${id}${search}`);
-    const response = await fetch(url);
-    const json = await response.json();
-    const { data: prefillData } = json;
-    const { data: { afData: { afBoundData: { data = {} } = {} } = {} } = {} } = json;
-    return Object.keys(data).length > 0 ? data : (prefillData || json);
-  } catch (ex) {
-    return null;
-  }
-}
-
 async function initializeRuleEngineWorker(formDef, renderHTMLForm) {
   if (typeof Worker === 'undefined') {
+    const data = await fetchData(formDef?.id, window.location.search || '');
     const ruleEngine = await import('./model/afb-runtime.js');
-    const form = ruleEngine.createFormInstance(formDef);
-    return renderHTMLForm(form.getState(true), formDef.data);
+    const form = ruleEngine.createFormInstance({ ...formDef, data });
+    return renderHTMLForm(form.getState(true), data);
   }
   const myWorker = new Worker(`${window.hlx.codeBasePath}/blocks/form/rules/RuleEngineWorker.js`, { type: 'module' });
-
   myWorker.postMessage({
     name: 'init',
-    payload: formDef,
+    payload: {
+      ...formDef,
+      search: window.location.search || '',
+    },
   });
 
   return new Promise((resolve) => {
@@ -378,12 +368,8 @@ async function initializeRuleEngineWorker(formDef, renderHTMLForm) {
 }
 
 export async function initAdaptiveForm(formDef, createForm) {
-  const data = await fetchData(formDef);
   await registerCustomFunctions();
-  const response = await initializeRuleEngineWorker({
-    ...formDef,
-    data,
-  }, createForm);
+  const response = await initializeRuleEngineWorker(formDef, createForm);
   return response?.form;
 }
 

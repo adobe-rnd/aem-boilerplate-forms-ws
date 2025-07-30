@@ -19,6 +19,7 @@
  ************************************************************************ */
 import { createFormInstance } from './model/afb-runtime.js';
 import registerCustomFunctions from './functionRegistration.js';
+import { fetchData } from '../util.js';
 
 let customFunctionRegistered = false;
 
@@ -48,8 +49,12 @@ let ruleEngine;
 onmessage = async (e) => {
   async function handleMessageEvent(event) {
     switch (event.data.name) {
-      case 'init':
-        ruleEngine = new RuleEngine(event.data.payload);
+      case 'init': {
+        const { search, ...formDef } = event.data.payload;
+        // Fetch data before initializing the rule engine
+        const data = await fetchData(formDef.id, search);
+        formDef.data = data;
+        ruleEngine = new RuleEngine(formDef);
         // eslint-disable-next-line no-case-declarations
         const state = ruleEngine.getState();
         postMessage({
@@ -60,6 +65,7 @@ onmessage = async (e) => {
           postMessage(msg);
         };
         break;
+      }
       default:
         break;
     }
