@@ -344,7 +344,7 @@ async function initializeRuleEngineWorker(formDef, renderHTMLForm) {
   return new Promise((resolve) => {
     let form; let captcha; let data; let generateFormRendition;
     myWorker.addEventListener('message', async (e) => {
-      // main thread starts form initialization
+      // main thread starts html rendering
       if (e.data.name === 'init') {
         const response = await renderHTMLForm(e.data.payload);
         form = response.form;
