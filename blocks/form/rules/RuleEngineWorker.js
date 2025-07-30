@@ -45,18 +45,16 @@ export default class RuleEngine {
   }
 }
 
-let ruleEngine;
+let ruleEngine; let initPayload;
 onmessage = async (e) => {
   async function handleMessageEvent(event) {
     switch (event.data.name) {
       case 'init': {
         const { search, ...formDef } = event.data.payload;
-        // Fetch data before initializing the rule engine
-        const data = await fetchData(formDef.id, search);
-        formDef.data = data;
+        initPayload = event.data.payload;
         ruleEngine = new RuleEngine(formDef);
-        // eslint-disable-next-line no-case-declarations
         const state = ruleEngine.getState();
+        // Informing the main thread that the form is initialized
         postMessage({
           name: 'init',
           payload: state,
@@ -70,8 +68,14 @@ onmessage = async (e) => {
         break;
     }
   }
-
+  // prefills form data, waits for all async operations
+  // to complete, then restores state and syncs field changes to main thread
   if (e.data.name === 'decorated') {
+    const { search, ...formDef } = initPayload;
+    const data = await fetchData(formDef.id, search);
+    if (data) {
+      ruleEngine.form.importData(data);
+    }
     await ruleEngine.form.waitForPromises();
     postMessage({
       name: 'restore',
@@ -82,6 +86,10 @@ onmessage = async (e) => {
         name: 'fieldChanged',
         payload: changes,
       });
+    });
+    // informing the main thread that form is ready
+    postMessage({
+      name: 'sync-complete',
     });
   }
 

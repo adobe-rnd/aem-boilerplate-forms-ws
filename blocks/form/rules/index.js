@@ -332,6 +332,7 @@ async function initializeRuleEngineWorker(formDef, renderHTMLForm) {
     return renderHTMLForm(form.getState(true), data);
   }
   const myWorker = new Worker(`${window.hlx.codeBasePath}/blocks/form/rules/RuleEngineWorker.js`, { type: 'module' });
+  // Trigger the worker to start form initialization
   myWorker.postMessage({
     name: 'init',
     payload: {
@@ -343,16 +344,18 @@ async function initializeRuleEngineWorker(formDef, renderHTMLForm) {
   return new Promise((resolve) => {
     let form; let captcha; let data; let generateFormRendition;
     myWorker.addEventListener('message', async (e) => {
+      // main thread starts form initialization
       if (e.data.name === 'init') {
         const response = await renderHTMLForm(e.data.payload);
         form = response.form;
         captcha = response.captcha;
         data = response.data;
         generateFormRendition = response.generateFormRendition;
+        form?.classList.add('loading');
+        // informing the worker that html form rendition is complete
         myWorker.postMessage({
           name: 'decorated',
-        }); // informing the worker that html form rendition is complete
-        // myWorker.terminate();
+        });
         resolve(response);
       }
 
@@ -362,6 +365,10 @@ async function initializeRuleEngineWorker(formDef, renderHTMLForm) {
 
       if (e.data.name === 'fieldChanged') {
         await fieldChanged(e.data.payload, form, generateFormRendition);
+      }
+
+      if (e.data.name === 'sync-complete') {
+        form?.classList.remove('loading');
       }
     });
   });
