@@ -30,6 +30,12 @@
                             "...": "../form-common/_basic-input-fields.json#/fields"
                         },
                         {
+                            "component": "open-fragment",
+                            "name": "openFragment",
+                            "label": "Open Fragment",
+                            "valueType": "boolean"
+                        },
+                        {
                             "component": "aem-content",
                             "name": "fragmentPath",
                             "label": "Fragment reference",
