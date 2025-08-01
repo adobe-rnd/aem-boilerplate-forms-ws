@@ -70,7 +70,8 @@
       "wizard",
       "range",
       "number-rating",
-      "card-choice"
+      "card-choice",
+      "cards"
     ]
   }
 ]
