@@ -10,9 +10,9 @@
  */
 export default async function decorate(fieldDiv, fieldJson) {
   console.log('⚙️ Decorating number-rating component:', fieldDiv, fieldJson);
-  
+
   // TODO: Implement your custom component logic here
   // You can access the field properties via fieldJson.properties
-  
+
   return fieldDiv;
 }
