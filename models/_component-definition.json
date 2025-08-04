@@ -44,9 +44,6 @@
           "...": "../blocks/form/components/range/_range.json#/definitions"
         },
         {
-          "...": "../blocks/form/components/number-rating/_number-rating.json#/definitions"
-        },
-        {
           "...": "../blocks/form/components/card-choice/_card-choice.json#/definitions"
         }
       ]
