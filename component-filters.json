@@ -68,13 +68,6 @@
       "text-input",
       "tnc",
       "wizard",
-      "range",
-      "card-choice"
-    ]
-  },
-  {
-    "id": "custom-components",
-    "components": [
       "icon-radio-group"
     ]
   }
