@@ -1,49 +1,22 @@
-import { createOptimizedPicture } from '../../../../scripts/aem.js';
-import { subscribe } from '../../rules/index.js';
+/**
+ * Custom cards component
+ * Based on: Radio Group
+ */
 
-function createCard(element, enums) {
-  element.querySelectorAll('.radio-wrapper').forEach((radioWrapper, index) => {
-    if (enums[index]?.name) {
-      let label = radioWrapper.querySelector('label');
-      if (!label) {
-        label = document.createElement('label');
-        radioWrapper.appendChild(label);
-      }
-      label.textContent = enums[index]?.name;
-    }
-    radioWrapper.querySelector('input').dataset.index = index;
-    const image = createOptimizedPicture(enums[index].image || 'https://main--afb--jalagari.hlx.page/lab/images/card.png', 'card-image');
-    const benefitsUl = document.createElement('ul');
-    benefitsUl.className = 'card-choice-benefits-list';
-    const benefits = enums[index]?.benefits?.split(',')?.map((b) => b.trim())?.filter(Boolean);
-    benefits?.forEach((benefit) => {
-      const li = document.createElement('li');
-      li.textContent = benefit;
-      benefitsUl.appendChild(li);
-    });
-    radioWrapper.appendChild(image);
-    radioWrapper.appendChild(benefitsUl);
-  });
-}
+/**
+ * Decorates a custom form field component
+ * @param {HTMLElement} fieldDiv - The DOM element containing the field wrapper.
+ * @param {Object} fieldJson - The form json object for the component.
+ * @param {HTMLElement} parentElement - The parent container element of the field.
+ * @param {string} formId - The unique identifier of the form.
+ */
+export default async function decorate(fieldDiv, fieldJson, parentElement, formId) {
+  console.log('⚙️ Decorating cards component:', fieldDiv, fieldJson, parentElement, formId);
 
-export default function decorate(element, fieldJson, container, formId) {
-  createCard(element, fieldJson.enumNames.map((e) => ({ ...e, benefits: 'benefits1,benefits2' })));
-  element.classList.add('card');
-  subscribe(element, formId, (fieldDiv, fieldModel) => {
-    fieldModel.subscribe((e) => {
-      const { payload } = e;
-      payload?.changes?.forEach((change) => {
-        if (change?.propertyName === 'enum') {
-          createCard(element, change.currentValue);
-        }
-      });
-    });
+  // TODO: Implement your custom component logic here
+  // You can access the field properties via fieldJson.properties
+  // You can access the parent container via parentElement
+  // You can access the form ID via formId
 
-    element.addEventListener('change', (e) => {
-      e.stopPropagation();
-      const value = fieldModel.enum?.[parseInt(e.target.dataset.index, 10)];
-      fieldModel.value = value?.name;
-    });
-  });
-  return element;
+  return fieldDiv;
 }
