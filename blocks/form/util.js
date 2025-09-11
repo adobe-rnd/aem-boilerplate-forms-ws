@@ -1,8 +1,9 @@
 // create a string containing head tags from h1 to h5
 import { defaultErrorMessages } from './constant.js';
+import { externalize } from './rules/functions.js';
 
 const headings = Array.from({ length: 6 }, (_, i) => `<h${i + 1}>`).join('');
-const allowedTags = `${headings}<a><b><p><i><em><strong><ul><li><ol>`;
+const allowedTags = `${headings}<a><b><p><i><em><strong><ul><li><ol><br><hr><u><sup><sub><s>`;
 
 export function stripTags(input, allowd = allowedTags) {
   if (typeof input !== 'string') {
@@ -386,7 +387,7 @@ export function createDropdownUsingEnum(fd, wrapper) {
   const addOption = (label, value) => {
     const option = document.createElement('option');
     option.textContent = label instanceof Object ? label?.value?.trim() : label?.trim();
-    option.value = value?.trim() || label?.trim();
+    option.value = String(value)?.trim() || String(label)?.trim();
     if (fd.value === option.value || (Array.isArray(fd.value) && fd.value.includes(option.value))) {
       option.setAttribute('selected', '');
       optionSelected = true;
@@ -424,5 +425,18 @@ export function createDropdownUsingEnum(fd, wrapper) {
 
   if (ph && optionSelected === false) {
     ph.setAttribute('selected', '');
+  }
+}
+
+export async function fetchData(id, search = '') {
+  try {
+    const url = externalize(`/adobe/forms/af/data/${id}${search}`);
+    const response = await fetch(url);
+    const json = await response.json();
+    const { data: prefillData } = json;
+    const { data: { afData: { afBoundData: { data = {} } = {} } = {} } = {} } = json;
+    return Object.keys(data).length > 0 ? data : (prefillData || json);
+  } catch (ex) {
+    return null;
   }
 }
